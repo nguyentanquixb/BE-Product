@@ -1,5 +1,6 @@
 package product.api.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import product.api.entity.Product;
 import product.api.repository.ProductRepository;
@@ -41,9 +42,11 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Product deleteProduct(Long id) {
-        return productRepository.deleteProductById(id);
+    @Transactional
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
     }
+
 
 
 
