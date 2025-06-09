@@ -1,6 +1,8 @@
 package product.api.service;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import product.api.entity.Product;
 import product.api.repository.ProductRepository;
@@ -22,8 +24,7 @@ public class ProductService {
     }
 
     public List<Product> getAllProduct(){
-        List<Product> product =  productRepository.findAll();
-        return product;
+        return productRepository.findAll();
     }
 
     public Product createProduct(Product request) {
@@ -45,6 +46,10 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
+    }
+
+    public Page<Product> getProductByPage(PageRequest  pageRequest) {
+        return productRepository.findAll(pageRequest);
     }
 
 

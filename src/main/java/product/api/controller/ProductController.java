@@ -1,5 +1,7 @@
 package product.api.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,9 +12,11 @@ import product.api.response.Response;
 import product.api.service.ProductService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/product")
@@ -38,12 +42,12 @@ public class ProductController {
 
     }
 
-    @GetMapping()
-    public ResponseEntity<Response> getAllProduct(){
-        List<Product> products =productService.getAllProduct();
-        List<ProductResponse> productResponse = products.stream().map(ProductResponse::convertProduct).toList();
-        return ResponseEntity.ok(Response.ok(productResponse));
-    }
+//    @GetMapping()
+//    public ResponseEntity<Response> getAllProduct(){
+//        List<Product> products =productService.getAllProduct();
+//        List<ProductResponse> productResponse = products.stream().map(ProductResponse::convertProduct).toList();
+//        return ResponseEntity.ok(Response.ok(productResponse));
+//    }
     @PostMapping
     public ResponseEntity<Response> createProduct(@RequestBody ProductRequest request) {
 
@@ -153,6 +157,16 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("Product not found"));
         }
     }
+    @GetMapping
+    public ResponseEntity<Response> getAllProduct(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam( defaultValue = "10") int size
+    ) {
+        Page<Product> products = productService.getProductByPage(PageRequest.of(page, size));
+        List<ProductResponse> productResponses = products.getContent().stream().map(ProductResponse::convertProduct).toList();
+        return ResponseEntity.ok(Response.ok(productResponses));
+    }
+
 
 
 
