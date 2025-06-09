@@ -52,6 +52,10 @@ public class ProductService {
         return productRepository.findAll(pageRequest);
     }
 
+    public List<Product> searchProductByName(String name){
+        return productRepository.searchProductByName(name);
+    }
+
 
 
 

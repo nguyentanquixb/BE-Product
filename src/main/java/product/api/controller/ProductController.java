@@ -166,6 +166,12 @@ public class ProductController {
         List<ProductResponse> productResponses = products.getContent().stream().map(ProductResponse::convertProduct).toList();
         return ResponseEntity.ok(Response.ok(productResponses));
     }
+    @GetMapping("/search")
+    public ResponseEntity<Response> searchProduct(@RequestParam String keyword){
+        List<Product> products = productService.searchProductByName(keyword);
+        List<ProductResponse> productResponses = products.stream().map(ProductResponse::convertProduct).toList();
+        return ResponseEntity.ok(Response.ok(productResponses));
+    }
 
 
 
