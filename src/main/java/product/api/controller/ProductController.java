@@ -12,10 +12,7 @@ import product.api.response.Response;
 import product.api.service.ProductService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -171,6 +168,67 @@ public class ProductController {
         List<Product> products = productService.searchProductByName(keyword);
         List<ProductResponse> productResponses = products.stream().map(ProductResponse::convertProduct).toList();
         return ResponseEntity.ok(Response.ok(productResponses));
+    }
+
+    @PutMapping("/update-list")
+    public ResponseEntity<Response> updateProducts(@RequestBody List<ProductRequest> requests) {
+        if (requests == null || requests.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product list is empty"));
+        }
+        Set<String> processedProductCodes = new HashSet<>();
+        List<ProductResponse> updatedProducts = new ArrayList<>();
+
+        for (ProductRequest request : requests) {
+            if (processedProductCodes.contains(request.getProductCode())) {
+                continue;
+            }
+
+            Optional<Product> productOptional = productService.getProductById(request.getId());
+
+            if (productOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("products not found"));
+            }
+
+            if (request.getName() == null || request.getName().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is null or empty"));
+            }
+            if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50 || productService.isProductCodeDuplicate(request.getProductCode())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is invalid or exceeds 50 characters or product already exists"));
+            }
+            if (request.getDescription() != null && request.getDescription().length() > 1000) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Description exceeds 1000 characters"));
+            }
+            if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price is invalid"));
+            }
+            if (request.getQuantity() == null || request.getQuantity() < 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity is invalid"));
+            }
+
+            List<String> validStatusUpdate = Arrays.asList("active", "inactive");
+            String status = request.getStatus() == null ? "active" : request.getStatus().trim().toLowerCase();
+
+            if (!validStatusUpdate.contains(status)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Status is invalid"));
+            }
+
+            Product product = productOptional.get();
+            product.setName(request.getName());
+            product.setDescription(request.getDescription());
+            product.setPrice(request.getPrice());
+            product.setQuantity(request.getQuantity());
+            product.setUnit(request.getUnit());
+            product.setStatus(status);
+            product.setProductCode(request.getProductCode());
+            product.setUpdatedAt(LocalDateTime.now());
+
+            Product updatedProduct = productService.updateProduct(product);
+            updatedProducts.add(ProductResponse.convertProduct(updatedProduct));
+
+            processedProductCodes.add(request.getProductCode());
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(Response.ok(updatedProducts));
     }
 
 
