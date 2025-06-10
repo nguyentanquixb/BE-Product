@@ -170,6 +170,31 @@ public class ProductController {
         return ResponseEntity.ok(Response.ok(productResponses));
     }
 
+    @DeleteMapping("/delete-list")
+    public ResponseEntity<Response> deleteProducts(@RequestBody List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product list is empty"));
+        }
+
+        List<Long> notIds = new ArrayList<>();
+
+        for (Long id : productIds) {
+            Optional<Product> product = productService.getProductById(id);
+
+            if (product.isPresent()) {
+                productService.deleteProduct(id);
+            } else {
+                notIds.add(id);
+            }
+        }
+
+        if (notIds.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(Response.ok("All product deleted successfully"));
+        } else {
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(Response.error("Some products not found"));
+        }
+    }
+
     @PutMapping("/update-list")
     public ResponseEntity<Response> updateProducts(@RequestBody List<ProductRequest> requests) {
         if (requests == null || requests.isEmpty()) {
@@ -230,8 +255,4 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.OK).body(Response.ok(updatedProducts));
     }
-
-
-
-
 }
