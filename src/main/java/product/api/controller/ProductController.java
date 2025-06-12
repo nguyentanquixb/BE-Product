@@ -156,7 +156,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/page")
     public ResponseEntity<Response> getAllProductPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam( defaultValue = "10") int size
