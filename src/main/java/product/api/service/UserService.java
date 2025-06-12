@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
@@ -38,5 +40,13 @@ public class UserService {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .build();
+    }
+
+    public Optional<User> findById(Long id){
+        return userRepository.findById(id);
+    }
+
+    public User updateUser(User user) {
+        return userRepository.save(user);
     }
 }

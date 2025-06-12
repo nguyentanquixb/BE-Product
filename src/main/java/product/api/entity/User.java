@@ -1,5 +1,6 @@
 package product.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -45,8 +46,10 @@ public class  User {
 
     @ManyToMany
     @JoinTable(name = "user_permissions",
+            schema = "product_api",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
+    @JsonIgnore
     private Set<Permission> permissions;
 
 }

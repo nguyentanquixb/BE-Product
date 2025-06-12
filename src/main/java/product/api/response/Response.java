@@ -28,5 +28,7 @@ public class Response {
     public static Response errorNotFound(Object error) {
         return new Response(null, HttpStatus.NOT_FOUND.value(), error);
     }
+    
+
 }
 
