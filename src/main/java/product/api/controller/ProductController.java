@@ -156,15 +156,15 @@ public class ProductController {
         }
     }
 
-//    @GetMapping
-//    public ResponseEntity<Response> getAllProduct(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam( defaultValue = "10") int size
-//    ) {
-//        Page<Product> products = productService.getProductByPage(PageRequest.of(page, size));
-//        List<ProductResponse> productResponses = products.getContent().stream().map(ProductResponse::convertProduct).toList();
-//        return ResponseEntity.ok(Response.ok(productResponses));
-//    }
+    @GetMapping("/page")
+    public ResponseEntity<Response> getAllProductPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam( defaultValue = "10") int size
+    ) {
+        Page<Product> products = productService.getProductByPage(PageRequest.of(page, size));
+        List<ProductResponse> productResponses = products.getContent().stream().map(ProductResponse::convertProduct).toList();
+        return ResponseEntity.ok(Response.ok(productResponses));
+    }
     @GetMapping("/search")
     public ResponseEntity<Response> searchProduct(@RequestParam String keyword) {
         List<Product> products = productService.searchProductByName(keyword);

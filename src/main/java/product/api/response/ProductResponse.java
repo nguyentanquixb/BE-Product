@@ -32,7 +32,7 @@ public class ProductResponse {
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
                 .unit(product.getUnit())
-                .status(product.getStatus())
+                .status(String.valueOf(product.getStatus()))
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build();
