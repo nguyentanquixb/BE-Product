@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import product.api.dto.ProductRequest;
 import product.api.entity.Product;
+import product.api.entity.ProductStatusEnum;
 import product.api.response.ProductResponse;
 import product.api.response.Response;
 import product.api.service.ProductService;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/product")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
 
     private final ProductService productService;
@@ -26,58 +28,55 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Response> getProductById(@PathVariable("id") Long id){
-        Optional<Product> optionalProduct =productService.getProductById(id);
-        if(optionalProduct.isPresent()){
+    public ResponseEntity<Response> getProductById(@PathVariable("id") Long id) {
+        Optional<Product> optionalProduct = productService.getProductById(id);
+        if (optionalProduct.isPresent()) {
             Product product = optionalProduct.get();
             ProductResponse productResponse = ProductResponse.convertProduct(product);
             return ResponseEntity.ok(Response.ok(productResponse));
-        }
-        else{
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("Product Not Found"));
         }
 
     }
 
-//    @GetMapping()
-//    public ResponseEntity<Response> getAllProduct(){
-//        List<Product> products =productService.getAllProduct();
-//        List<ProductResponse> productResponse = products.stream().map(ProductResponse::convertProduct).toList();
-//        return ResponseEntity.ok(Response.ok(productResponse));
-//    }
+    @GetMapping()
+    public ResponseEntity<Response> getAllProduct() {
+        List<Product> products = productService.getAllProduct();
+        List<ProductResponse> productResponse = products.stream().map(ProductResponse::convertProduct).toList();
+        return ResponseEntity.ok(Response.ok(productResponse));
+    }
+
     @PostMapping
     public ResponseEntity<Response> createProduct(@RequestBody ProductRequest request) {
 
-        if(request.getName() == null || request.getName().isEmpty()){
+        if (request.getName() == null || request.getName().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is null or empty "));
         }
-        if(request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50){
+        if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is null or empty or no more char 50 "));
         }
-        if(request.getDescription().length() > 1000){
+        if (request.getDescription().length() > 1000) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Description is null or no more char 1000 "));
         }
-        if(request.getPrice() == null || request.getPrice().doubleValue() < 0){
+        if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price is null or negative "));
         }
-        if(request.getQuantity() == null || request.getQuantity() < 0){
+        if (request.getQuantity() == null || request.getQuantity() < 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity is null or negative "));
         }
-        List<String> validStatus = Arrays.asList("active", "inactive");
-
-        String status = request.getStatus() == null ? "active" : request.getStatus().trim().toLowerCase();
-
-        if (!validStatus.contains(status)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Response.error("Status is invalid"));
+        ProductStatusEnum status;
+        try {
+            status = request.getStatus() == null ? ProductStatusEnum.ACTIVE : ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Invalid status. Allowed values: ACTIVE, INACTIVE"));
         }
+
         if (request.getCreatedAt() == null || request.getCreatedAt().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Response.error("CreatedAt is invalid"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("CreatedAt is invalid"));
         }
         if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50 || productService.isProductCodeDuplicate(request.getProductCode())) {
-            return  ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Response.error("Product Code is invalid or no more char 50 or product already exists"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is invalid or no more char 50 or product already exists"));
         }
 
 
@@ -87,7 +86,7 @@ public class ProductController {
         product.setPrice(request.getPrice());
         product.setQuantity(request.getQuantity());
         product.setUnit(request.getUnit());
-        product.setStatus(request.getStatus());
+        product.setStatus(ProductStatusEnum.valueOf(request.getStatus()));
         product.setProductCode(request.getProductCode());
         product.setCreatedAt(LocalDateTime.now());
 
@@ -97,34 +96,35 @@ public class ProductController {
 
 
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
 
         Optional<Product> productOptional = productService.getProductById(id);
-        if (productOptional.isPresent())
+        if (productOptional.isEmpty())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("Product not found"));
 
-        if(request.getName() == null || request.getName().isEmpty()){
+        if (request.getName() == null || request.getName().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is null or empty"));
         }
-        if(request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50 || productService.isProductCodeDuplicate(request.getProductCode())) {
+        if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50 || productService.isProductCodeDuplicate(request.getProductCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is invalid or  no more char 50 or product already exists"));
         }
-        if(request.getDescription().length() > 1000){
+        if (request.getDescription().length() > 1000) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Description exceeds 1000 characters"));
         }
-        if(request.getPrice() == null || request.getPrice().doubleValue() < 0){
+        if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price is invalid"));
         }
-        if(request.getQuantity() == null || request.getQuantity() < 0){
+        if (request.getQuantity() == null || request.getQuantity() < 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity is invalid"));
         }
 
-        List<String> validStatusUpdate = Arrays.asList("active", "inactive");
-        String status = request.getStatus() == null ? "active" : request.getStatus().trim().toLowerCase();
-
-        if (!validStatusUpdate.contains(status)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Status is invalid"));
+        ProductStatusEnum status;
+        try {
+            status = request.getStatus() == null ? ProductStatusEnum.ACTIVE : ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Invalid status. Allowed values: ACTIVE, INACTIVE"));
         }
 
         Product product = productOptional.get();
@@ -142,6 +142,7 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.OK).body(Response.ok(productResponse));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Response> deleteProduct(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);
@@ -154,17 +155,18 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("Product not found"));
         }
     }
-    @GetMapping
-    public ResponseEntity<Response> getAllProduct(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam( defaultValue = "10") int size
-    ) {
-        Page<Product> products = productService.getProductByPage(PageRequest.of(page, size));
-        List<ProductResponse> productResponses = products.getContent().stream().map(ProductResponse::convertProduct).toList();
-        return ResponseEntity.ok(Response.ok(productResponses));
-    }
+
+//    @GetMapping
+//    public ResponseEntity<Response> getAllProduct(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam( defaultValue = "10") int size
+//    ) {
+//        Page<Product> products = productService.getProductByPage(PageRequest.of(page, size));
+//        List<ProductResponse> productResponses = products.getContent().stream().map(ProductResponse::convertProduct).toList();
+//        return ResponseEntity.ok(Response.ok(productResponses));
+//    }
     @GetMapping("/search")
-    public ResponseEntity<Response> searchProduct(@RequestParam String keyword){
+    public ResponseEntity<Response> searchProduct(@RequestParam String keyword) {
         List<Product> products = productService.searchProductByName(keyword);
         List<ProductResponse> productResponses = products.stream().map(ProductResponse::convertProduct).toList();
         return ResponseEntity.ok(Response.ok(productResponses));
@@ -230,10 +232,10 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity is invalid"));
             }
 
-            List<String> validStatusUpdate = Arrays.asList("active", "inactive");
-            String status = request.getStatus() == null ? "active" : request.getStatus().trim().toLowerCase();
-
-            if (!validStatusUpdate.contains(status)) {
+            ProductStatusEnum status;
+            try {
+                status = request.getStatus() == null ? ProductStatusEnum.ACTIVE : ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Status is invalid"));
             }
 

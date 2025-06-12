@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name="product")
+@Table(name="product", schema = "product_api" )
 public class Product {
 
     @Id
@@ -38,8 +38,10 @@ public class Product {
     @Column(name = "unit", nullable = false)
     private Long unit;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private ProductStatusEnum status;
+
 
     @Column(name = "createdAt",updatable = false)
     private LocalDateTime createdAt;
