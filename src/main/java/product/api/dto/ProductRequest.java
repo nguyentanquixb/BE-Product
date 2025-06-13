@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ProductRequest {
+
     private Long id;
     private String name;
     private String productCode;

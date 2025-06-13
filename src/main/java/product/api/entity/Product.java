@@ -43,6 +43,7 @@ public class Product {
     private ProductStatusEnum status;
 
 
+
     @Column(name = "createdAt",updatable = false)
     private LocalDateTime createdAt;
 

@@ -3,6 +3,7 @@ package product.api.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,8 +15,6 @@ import product.api.dto.UserDTO;
 import product.api.dto.UserRequest;
 import product.api.entity.Permission;
 import product.api.entity.User;
-import product.api.repository.PermissionRepository;
-import product.api.repository.UserRepository;
 import product.api.response.Response;
 import product.api.service.PermissionService;
 import product.api.service.UserService;
@@ -29,13 +28,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private PermissionService  permissionService;
 
     @Autowired
-    private PermissionRepository permissionRepository;
+    private PermissionService permissionService;
 
-    @PostMapping
+    @PostMapping("/create-user")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<User> createUser(@RequestBody UserRequest userRequest) {
         User user = userService.saveUser(userRequest);
         return ResponseEntity.ok(user);
@@ -48,6 +46,7 @@ public class UserController {
     }
 
     @PostMapping("/permissions")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response> assignPermissionsToUser(@RequestBody AssignPermissionRequest assignPermissionRequest) {
         Optional<User> userOptional = userService.findById(assignPermissionRequest.getUserId());
         if (userOptional.isEmpty()) {
@@ -60,13 +59,17 @@ public class UserController {
 
         User user = userOptional.get();
 
+        Set<Long> uniquePermissionIds = new HashSet<>(assignPermissionRequest.getPermissionIds());
+
+        List<Long> permissionIdList = new ArrayList<>(uniquePermissionIds);
+
         Set<Long> existingPermissionIds = user.getPermissions().stream()
                 .map(Permission::getId)
                 .collect(Collectors.toSet());
 
-        List<Permission> permissions = permissionService.getPermissionById(assignPermissionRequest.getPermissionIds())
+        List<Permission> permissions = permissionService.getPermissionById(permissionIdList)
                 .stream()
-                .filter(permission -> !existingPermissionIds.contains(permission.getId())) // Loại bỏ quyền đã tồn tại
+                .filter(permission -> !existingPermissionIds.contains(permission.getId()))
                 .toList();
 
         if (permissions.isEmpty()) {
@@ -78,9 +81,5 @@ public class UserController {
 
         return ResponseEntity.ok(Response.ok(user));
     }
-
-
-
-
 }
 

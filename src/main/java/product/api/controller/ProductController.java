@@ -4,17 +4,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import product.api.dto.ProductRequest;
 import product.api.entity.Product;
 import product.api.entity.ProductStatusEnum;
 import product.api.response.ProductResponse;
 import product.api.response.Response;
 import product.api.service.ProductService;
+import product.api.utils.ExcelHelper;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/product")
@@ -32,6 +34,8 @@ public class ProductController {
         Optional<Product> optionalProduct = productService.getProductById(id);
         if (optionalProduct.isPresent()) {
             Product product = optionalProduct.get();
+            System.out.println("Product Status from DB: " + product.getStatus());
+
             ProductResponse productResponse = ProductResponse.convertProduct(product);
             return ResponseEntity.ok(Response.ok(productResponse));
         } else {
@@ -43,11 +47,13 @@ public class ProductController {
     @GetMapping()
     public ResponseEntity<Response> getAllProduct() {
         List<Product> products = productService.getAllProduct();
+
         List<ProductResponse> productResponse = products.stream().map(ProductResponse::convertProduct).toList();
         return ResponseEntity.ok(Response.ok(productResponse));
     }
 
-    @PostMapping
+    @PostMapping("/create-product")
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<Response> createProduct(@RequestBody ProductRequest request) {
 
         if (request.getName() == null || request.getName().isEmpty()) {
@@ -79,7 +85,6 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is invalid or no more char 50 or product already exists"));
         }
 
-
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
@@ -94,10 +99,61 @@ public class ProductController {
         ProductResponse productResponse = ProductResponse.convertProduct(saveProduct);
         return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(productResponse));
 
-
     }
 
-    @PutMapping("/{id}")
+    @PostMapping("/create-product-excel")
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
+    public ResponseEntity<Response> createProductExcel(@RequestParam("file") MultipartFile file) {
+
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("File is empty"));
+        }
+
+        List<ProductRequest> productRequests;
+
+        try{
+            productRequests = ExcelHelper.excelToProductList(file.getInputStream());
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("File Not Found"));
+        }
+
+        List<ProductResponse> savedProducts = new ArrayList<>();
+
+        for (ProductRequest request : productRequests) {
+
+            if (request.getName() == null || request.getName().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is null or empty"));
+            }
+            if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50 ||
+                    productService.isProductCodeDuplicate(request.getProductCode())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is invalid or already exists"));
+            }
+            if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price is null or negative"));
+            }
+            if (request.getQuantity() == null || request.getQuantity() < 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity is null or negative"));
+            }
+
+            Product product = new Product();
+            product.setName(request.getName());
+            product.setProductCode(request.getProductCode());
+            product.setDescription(request.getDescription());
+            product.setPrice(request.getPrice());
+            product.setQuantity(request.getQuantity());
+            product.setUnit(request.getUnit());
+            product.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
+            product.setCreatedAt(LocalDateTime.now());
+
+            Product savedProduct = productService.createProduct(product);
+            savedProducts.add(ProductResponse.convertProduct(savedProduct));
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(savedProducts));
+    }
+
+    @PutMapping("/update-product/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
     public ResponseEntity<Response> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
 
         Optional<Product> productOptional = productService.getProductById(id);
@@ -143,7 +199,8 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(Response.ok(productResponse));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("delete-product/{id}")
+    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<Response> deleteProduct(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);
 
@@ -159,12 +216,13 @@ public class ProductController {
     @GetMapping("/page")
     public ResponseEntity<Response> getAllProductPage(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam( defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         Page<Product> products = productService.getProductByPage(PageRequest.of(page, size));
         List<ProductResponse> productResponses = products.getContent().stream().map(ProductResponse::convertProduct).toList();
         return ResponseEntity.ok(Response.ok(productResponses));
     }
+
     @GetMapping("/search")
     public ResponseEntity<Response> searchProduct(@RequestParam String keyword) {
         List<Product> products = productService.searchProductByName(keyword);
@@ -173,6 +231,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete-list")
+    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<Response> deleteProducts(@RequestBody List<Long> productIds) {
         if (productIds == null || productIds.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product list is empty"));
@@ -198,6 +257,7 @@ public class ProductController {
     }
 
     @PutMapping("/update-list")
+    @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
     public ResponseEntity<Response> updateProducts(@RequestBody List<ProductRequest> requests) {
         if (requests == null || requests.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product list is empty"));

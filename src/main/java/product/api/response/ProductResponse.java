@@ -2,6 +2,7 @@ package product.api.response;
 
 import lombok.*;
 import product.api.entity.Product;
+import product.api.entity.ProductStatusEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public class ProductResponse {
     private BigDecimal price;
     private Integer quantity;
     private Long unit;
-    private String status;
+    private ProductStatusEnum status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -32,7 +33,7 @@ public class ProductResponse {
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
                 .unit(product.getUnit())
-                .status(String.valueOf(product.getStatus()))
+
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build();

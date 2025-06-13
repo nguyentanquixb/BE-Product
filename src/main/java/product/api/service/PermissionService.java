@@ -8,6 +8,8 @@ import product.api.repository.PermissionRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PermissionService {
@@ -24,4 +26,11 @@ public class PermissionService {
     public List<Permission> getPermissionById(List<Long> permissionIds ) {
         return permissionRepository.findAllById(permissionIds);
     }
+
+    public Set<String> getAllPermissionNames() {
+        return permissionRepository.findAll().stream()
+                .map(Permission::getName)
+                .collect(Collectors.toSet());
+    }
+
 }

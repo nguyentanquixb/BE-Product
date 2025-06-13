@@ -52,4 +52,12 @@ public class  User {
     @JsonIgnore
     private Set<Permission> permissions;
 
+    @ManyToMany
+    @JoinTable(name = "user_roles",
+            schema = "product_api",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JsonIgnore
+    private Set<Role> roles;
+
 }
