@@ -13,13 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 import product.api.dto.ProductRequest;
 import product.api.entity.Product;
 import product.api.entity.ProductStatusEnum;
+import product.api.repository.CategoryRepository;
+import product.api.repository.SupplierRepository;
+import product.api.repository.WarehouseRepository;
 import product.api.response.ProductResponse;
 import product.api.response.Response;
 import product.api.service.ProductService;
 import product.api.service.S3Service;
 import product.api.utils.ExcelHelper;
-import software.amazon.awssdk.auth.credentials.AwsCredentials;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,9 +41,18 @@ public class ProductController {
 
     private final ProductService productService;
 
-    public ProductController(ProductService productService, S3Service s3Service) {
+    private final CategoryRepository categoryRepository;
+
+    private final WarehouseRepository warehouseRepository;
+
+    private final SupplierRepository supplierRepository;
+
+    public ProductController(ProductService productService, S3Service s3Service, CategoryRepository categoryRepository, WarehouseRepository warehouseRepository, SupplierRepository supplierRepository) {
         this.productService = productService;
         this.s3Service = s3Service;
+        this.categoryRepository = categoryRepository;
+        this.warehouseRepository = warehouseRepository;
+        this.supplierRepository = supplierRepository;
     }
 
     @GetMapping("/{id}")
@@ -72,7 +82,6 @@ public class ProductController {
     @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<Response> createProduct(@RequestBody ProductRequest request) {
 
-        // Kiểm tra dữ liệu đầu vào
         if (request.getName() == null || request.getName().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is required"));
         }
@@ -101,7 +110,6 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Supplier ID is required"));
         }
 
-        // Xác định trạng thái sản phẩm
         ProductStatusEnum status;
         try {
             status = request.getStatus() == null ? ProductStatusEnum.ACTIVE : ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase());
@@ -109,17 +117,14 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Invalid status. Allowed values: ACTIVE, INACTIVE"));
         }
 
-        // Kiểm tra ngày tạo
         if (request.getCreatedAt() == null || request.getCreatedAt().isAfter(LocalDateTime.now())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("CreatedAt is invalid"));
         }
 
-        // Kiểm tra mã sản phẩm trùng lặp
         if (productService.isProductCodeDuplicate(request.getProductCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code already exists"));
         }
 
-        // Tạo sản phẩm mới
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
@@ -140,13 +145,10 @@ public class ProductController {
         product.setSupplier(supplierRepository.findById(request.getSupplierId()).orElseThrow(
                 () -> new RuntimeException("Supplier not found")));
 
-        // Lưu vào DB
         Product savedProduct = productService.createProduct(product);
         ProductResponse productResponse = ProductResponse.convertProduct(savedProduct);
         return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(productResponse));
     }
-
-
 
     @PostMapping("/create-product-excel")
     @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
@@ -172,7 +174,6 @@ public class ProductController {
 
             List<ProductRequest> productRequests;
             try {
-
                 productRequests = ExcelHelper.excelToProductList(Files.newInputStream(tempFile));
             } catch (Exception e) {
                 s3Service.uploadFile(tempFile, "error", "invalid-excel-" + timestamp + "-" + fileName);
@@ -188,21 +189,31 @@ public class ProductController {
                 if (request.getName() == null || request.getName().isEmpty()) {
                     errors.add("Row " + (i + 1) + ": Product name is empty or invalid");
                 }
-
-                if (request.getProductCode() == null || request.getProductCode().isEmpty()) {
-                    errors.add("Row " + (i + 1) + ": Product code is empty or invalid");
-                } else if (request.getProductCode().length() > 50) {
-                    errors.add("Row " + (i + 1) + ": Product code exceeds 50 characters");
+                if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50) {
+                    errors.add("Row " + (i + 1) + ": Product code is empty, invalid, or exceeds 50 characters");
                 } else if (productService.isProductCodeDuplicate(request.getProductCode())) {
                     errors.add("Row " + (i + 1) + ": Product code '" + request.getProductCode() + "' already exists");
                 }
-
                 if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
                     errors.add("Row " + (i + 1) + ": Price is empty or negative");
                 }
-
                 if (request.getQuantity() == null || request.getQuantity() < 0) {
                     errors.add("Row " + (i + 1) + ": Quantity is empty or negative");
+                }
+                if (request.getMinStock() == null || request.getMinStock() < 0) {
+                    errors.add("Row " + (i + 1) + ": MinStock cannot be null or negative");
+                }
+                if (request.getBarcode() == null || request.getBarcode().isEmpty()) {
+                    errors.add("Row " + (i + 1) + ": Barcode is missing");
+                }
+                if (request.getCategoryId() == null || !categoryRepository.existsById(request.getCategoryId())) {
+                    errors.add("Row " + (i + 1) + ": Category ID is invalid");
+                }
+                if (request.getWarehouseId() == null || !warehouseRepository.existsById(request.getWarehouseId())) {
+                    errors.add("Row " + (i + 1) + ": Warehouse ID is invalid");
+                }
+                if (request.getSupplierId() == null || !supplierRepository.existsById(request.getSupplierId())) {
+                    errors.add("Row " + (i + 1) + ": Supplier ID is invalid");
                 }
 
                 try {
@@ -226,9 +237,18 @@ public class ProductController {
                 product.setDescription(request.getDescription());
                 product.setPrice(request.getPrice());
                 product.setQuantity(request.getQuantity());
+                product.setMinStock(request.getMinStock());
                 product.setUnit(request.getUnit());
+                product.setBarcode(request.getBarcode());
                 product.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
                 product.setCreatedAt(LocalDateTime.now());
+
+                product.setCategory(categoryRepository.findById(request.getCategoryId()).orElseThrow(
+                        () -> new RuntimeException("Category not found")));
+                product.setWarehouse(warehouseRepository.findById(request.getWarehouseId()).orElseThrow(
+                        () -> new RuntimeException("Warehouse not found")));
+                product.setSupplier(supplierRepository.findById(request.getSupplierId()).orElseThrow(
+                        () -> new RuntimeException("Supplier not found")));
 
                 Product savedProduct = productService.createProduct(product);
                 savedProducts.add(ProductResponse.convertProduct(savedProduct));
@@ -258,23 +278,42 @@ public class ProductController {
     public ResponseEntity<Response> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
 
         Optional<Product> productOptional = productService.getProductById(id);
-        if (productOptional.isEmpty())
+        if (productOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("Product not found"));
+        }
 
         if (request.getName() == null || request.getName().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is null or empty"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is required"));
         }
-        if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50 || productService.isProductCodeDuplicate(request.getProductCode())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is invalid or  no more char 50 or product already exists"));
+        if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code must be less than 50 characters"));
         }
-        if (request.getDescription().length() > 1000) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Description exceeds 1000 characters"));
+        if (productService.isProductCodeDuplicate(request.getProductCode()) && !productOptional.get().getProductCode().equals(request.getProductCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code already exists"));
+        }
+        if (request.getDescription() != null && request.getDescription().length() > 1000) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Description must be less than 1000 characters"));
         }
         if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price is invalid"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price must be positive"));
         }
         if (request.getQuantity() == null || request.getQuantity() < 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity is invalid"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity must be positive"));
+        }
+        if (request.getMinStock() == null || request.getMinStock() < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Min Stock must be positive"));
+        }
+        if (request.getBarcode() == null || request.getBarcode().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Barcode is required"));
+        }
+        if (request.getCategoryId() == null || !categoryRepository.existsById(request.getCategoryId())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Category ID is invalid"));
+        }
+        if (request.getWarehouseId() == null || !warehouseRepository.existsById(request.getWarehouseId())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Warehouse ID is invalid"));
+        }
+        if (request.getSupplierId() == null || !supplierRepository.existsById(request.getSupplierId())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Supplier ID is invalid"));
         }
 
         ProductStatusEnum status;
@@ -286,19 +325,29 @@ public class ProductController {
 
         Product product = productOptional.get();
         product.setName(request.getName());
+        product.setProductCode(request.getProductCode());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setQuantity(request.getQuantity());
+        product.setMinStock(request.getMinStock());
         product.setUnit(request.getUnit());
+        product.setBarcode(request.getBarcode());
         product.setStatus(status);
-        product.setProductCode(request.getProductCode());
         product.setUpdatedAt(LocalDateTime.now());
+
+        product.setCategory(categoryRepository.findById(request.getCategoryId()).orElseThrow(
+                () -> new RuntimeException("Category not found")));
+        product.setWarehouse(warehouseRepository.findById(request.getWarehouseId()).orElseThrow(
+                () -> new RuntimeException("Warehouse not found")));
+        product.setSupplier(supplierRepository.findById(request.getSupplierId()).orElseThrow(
+                () -> new RuntimeException("Supplier not found")));
 
         Product updatedProduct = productService.updateProduct(product);
         ProductResponse productResponse = ProductResponse.convertProduct(updatedProduct);
 
         return ResponseEntity.status(HttpStatus.OK).body(Response.ok(productResponse));
     }
+
 
     @DeleteMapping("delete-product/{id}")
     @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
@@ -363,6 +412,7 @@ public class ProductController {
         if (requests == null || requests.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product list is empty"));
         }
+
         Set<String> processedProductCodes = new HashSet<>();
         List<ProductResponse> updatedProducts = new ArrayList<>();
 
@@ -374,41 +424,68 @@ public class ProductController {
             Optional<Product> productOptional = productService.getProductById(request.getId());
 
             if (productOptional.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("products not found"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("Product with ID " + request.getId() + " not found"));
             }
 
             if (request.getName() == null || request.getName().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is null or empty"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is required"));
             }
-            if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50 || productService.isProductCodeDuplicate(request.getProductCode())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is invalid or exceeds 50 characters or product already exists"));
+            if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code must be less than 50 characters"));
+            }
+            if (productService.isProductCodeDuplicate(request.getProductCode()) && !productOptional.get().getProductCode().equals(request.getProductCode())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code already exists"));
             }
             if (request.getDescription() != null && request.getDescription().length() > 1000) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Description exceeds 1000 characters"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Description must be less than 1000 characters"));
             }
             if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price is invalid"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price must be positive"));
             }
             if (request.getQuantity() == null || request.getQuantity() < 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity is invalid"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity must be positive"));
+            }
+            if (request.getMinStock() == null || request.getMinStock() < 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Min Stock must be positive"));
+            }
+            if (request.getBarcode() == null || request.getBarcode().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Barcode is required"));
+            }
+            if (request.getCategoryId() == null || !categoryRepository.existsById(request.getCategoryId())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Invalid Category ID"));
+            }
+            if (request.getWarehouseId() == null || !warehouseRepository.existsById(request.getWarehouseId())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Invalid Warehouse ID"));
+            }
+            if (request.getSupplierId() == null || !supplierRepository.existsById(request.getSupplierId())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Invalid Supplier ID"));
             }
 
             ProductStatusEnum status;
             try {
                 status = request.getStatus() == null ? ProductStatusEnum.ACTIVE : ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase());
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Status is invalid"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Invalid status. Allowed values: ACTIVE, INACTIVE"));
             }
 
             Product product = productOptional.get();
             product.setName(request.getName());
+            product.setProductCode(request.getProductCode());
             product.setDescription(request.getDescription());
             product.setPrice(request.getPrice());
             product.setQuantity(request.getQuantity());
+            product.setMinStock(request.getMinStock());
             product.setUnit(request.getUnit());
+            product.setBarcode(request.getBarcode());
             product.setStatus(status);
-            product.setProductCode(request.getProductCode());
             product.setUpdatedAt(LocalDateTime.now());
+
+            product.setCategory(categoryRepository.findById(request.getCategoryId()).orElseThrow(
+                    () -> new RuntimeException("Category not found")));
+            product.setWarehouse(warehouseRepository.findById(request.getWarehouseId()).orElseThrow(
+                    () -> new RuntimeException("Warehouse not found")));
+            product.setSupplier(supplierRepository.findById(request.getSupplierId()).orElseThrow(
+                    () -> new RuntimeException("Supplier not found")));
 
             Product updatedProduct = productService.updateProduct(product);
             updatedProducts.add(ProductResponse.convertProduct(updatedProduct));
@@ -418,4 +495,5 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.OK).body(Response.ok(updatedProducts));
     }
+
 }
