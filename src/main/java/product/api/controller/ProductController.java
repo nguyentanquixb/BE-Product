@@ -72,21 +72,36 @@ public class ProductController {
     @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<Response> createProduct(@RequestBody ProductRequest request) {
 
+        // Kiểm tra dữ liệu đầu vào
         if (request.getName() == null || request.getName().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is null or empty "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is required"));
         }
         if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is null or empty or no more char 50 "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is required and must be less than 50 characters"));
         }
-        if (request.getDescription().length() > 1000) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Description is null or no more char 1000 "));
+        if (request.getDescription() != null && request.getDescription().length() > 1000) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Description must be less than 1000 characters"));
         }
         if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price is null or negative "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price is required and must be positive"));
         }
         if (request.getQuantity() == null || request.getQuantity() < 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity is null or negative "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity must be a positive integer"));
         }
+        if (request.getMinStock() == null || request.getMinStock() < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Min Stock must be a positive integer"));
+        }
+        if (request.getCategoryId() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Category ID is required"));
+        }
+        if (request.getWarehouseId() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Warehouse ID is required"));
+        }
+        if (request.getSupplierId() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Supplier ID is required"));
+        }
+
+        // Xác định trạng thái sản phẩm
         ProductStatusEnum status;
         try {
             status = request.getStatus() == null ? ProductStatusEnum.ACTIVE : ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase());
@@ -94,28 +109,43 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Invalid status. Allowed values: ACTIVE, INACTIVE"));
         }
 
-        if (request.getCreatedAt() == null || request.getCreatedAt().isBefore(LocalDateTime.now())) {
+        // Kiểm tra ngày tạo
+        if (request.getCreatedAt() == null || request.getCreatedAt().isAfter(LocalDateTime.now())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("CreatedAt is invalid"));
         }
-        if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50 || productService.isProductCodeDuplicate(request.getProductCode())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is invalid or no more char 50 or product already exists"));
+
+        // Kiểm tra mã sản phẩm trùng lặp
+        if (productService.isProductCodeDuplicate(request.getProductCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code already exists"));
         }
 
+        // Tạo sản phẩm mới
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setQuantity(request.getQuantity());
+        product.setMinStock(request.getMinStock());
         product.setUnit(request.getUnit());
-        product.setStatus(ProductStatusEnum.valueOf(request.getStatus()));
+        product.setBarcode(request.getBarcode());
+        product.setStatus(status);
         product.setProductCode(request.getProductCode());
         product.setCreatedAt(LocalDateTime.now());
+        product.setUpdatedAt(LocalDateTime.now());
 
-        Product saveProduct = productService.createProduct(product);
-        ProductResponse productResponse = ProductResponse.convertProduct(saveProduct);
+        product.setCategory(categoryRepository.findById(request.getCategoryId()).orElseThrow(
+                () -> new RuntimeException("Category not found")));
+        product.setWarehouse(warehouseRepository.findById(request.getWarehouseId()).orElseThrow(
+                () -> new RuntimeException("Warehouse not found")));
+        product.setSupplier(supplierRepository.findById(request.getSupplierId()).orElseThrow(
+                () -> new RuntimeException("Supplier not found")));
+
+        // Lưu vào DB
+        Product savedProduct = productService.createProduct(product);
+        ProductResponse productResponse = ProductResponse.convertProduct(savedProduct);
         return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(productResponse));
-
     }
+
 
 
     @PostMapping("/create-product-excel")

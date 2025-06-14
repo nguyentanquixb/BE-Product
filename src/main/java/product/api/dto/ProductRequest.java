@@ -16,8 +16,13 @@ public class ProductRequest {
     private String description;
     private BigDecimal price;
     private Integer quantity;
+    private Integer minStock;
     private String unit;
+    private String barcode;
     private String status;
+    private Long categoryId;
+    private Long warehouseId;
+    private Long supplierId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
