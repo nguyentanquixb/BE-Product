@@ -1,5 +1,8 @@
 package product.api.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -13,20 +16,33 @@ import product.api.entity.ProductStatusEnum;
 import product.api.response.ProductResponse;
 import product.api.response.Response;
 import product.api.service.ProductService;
+import product.api.service.S3Service;
 import product.api.utils.ExcelHelper;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+
 
 @RestController
 @RequestMapping("/product")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
+
+    private final S3Service s3Service;
+
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, S3Service s3Service) {
         this.productService = productService;
+        this.s3Service = s3Service;
     }
 
     @GetMapping("/{id}")
@@ -101,55 +117,110 @@ public class ProductController {
 
     }
 
+
     @PostMapping("/create-product-excel")
     @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<Response> createProductExcel(@RequestParam("file") MultipartFile file) {
 
-        if (file == null || file.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("File is empty"));
+        logger.info("API /create-product-excel called at {}", LocalDateTime.now());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        String timestamp = LocalDateTime.now().format(formatter);
+        String fileName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "products.xlsx";
+        fileName = fileName.replaceAll("\\s+", "_");
+
+        Path tempFile = null;
+        try {
+            tempFile = Files.createTempFile("upload-", ".xlsx");
+            file.transferTo(tempFile.toFile());
+
+            if (file.isEmpty()) {
+                s3Service.uploadFile(tempFile, "error", "empty-file-" + timestamp + "-" + fileName);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Response.error(List.of("File is empty or not provided")));
+            }
+
+            List<ProductRequest> productRequests;
+            try {
+
+                productRequests = ExcelHelper.excelToProductList(Files.newInputStream(tempFile));
+            } catch (Exception e) {
+                s3Service.uploadFile(tempFile, "error", "invalid-excel-" + timestamp + "-" + fileName);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Response.error(List.of("Error reading Excel file: " + e.getMessage())));
+            }
+
+            List<String> errors = new ArrayList<>();
+
+            for (int i = 0; i < productRequests.size(); i++) {
+                ProductRequest request = productRequests.get(i);
+
+                if (request.getName() == null || request.getName().isEmpty()) {
+                    errors.add("Row " + (i + 1) + ": Product name is empty or invalid");
+                }
+
+                if (request.getProductCode() == null || request.getProductCode().isEmpty()) {
+                    errors.add("Row " + (i + 1) + ": Product code is empty or invalid");
+                } else if (request.getProductCode().length() > 50) {
+                    errors.add("Row " + (i + 1) + ": Product code exceeds 50 characters");
+                } else if (productService.isProductCodeDuplicate(request.getProductCode())) {
+                    errors.add("Row " + (i + 1) + ": Product code '" + request.getProductCode() + "' already exists");
+                }
+
+                if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
+                    errors.add("Row " + (i + 1) + ": Price is empty or negative");
+                }
+
+                if (request.getQuantity() == null || request.getQuantity() < 0) {
+                    errors.add("Row " + (i + 1) + ": Quantity is empty or negative");
+                }
+
+                try {
+                    ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    errors.add("Row " + (i + 1) + ": Invalid product status '" + request.getStatus() + "'");
+                }
+            }
+
+            if (!errors.isEmpty()) {
+                s3Service.uploadFile(tempFile, "error", "validation-failed-" + timestamp + "-" + fileName);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Response.error(errors));
+            }
+
+            List<ProductResponse> savedProducts = new ArrayList<>();
+            for (ProductRequest request : productRequests) {
+                Product product = new Product();
+                product.setName(request.getName());
+                product.setProductCode(request.getProductCode());
+                product.setDescription(request.getDescription());
+                product.setPrice(request.getPrice());
+                product.setQuantity(request.getQuantity());
+                product.setUnit(request.getUnit());
+                product.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
+                product.setCreatedAt(LocalDateTime.now());
+
+                Product savedProduct = productService.createProduct(product);
+                savedProducts.add(ProductResponse.convertProduct(savedProduct));
+            }
+
+            s3Service.uploadFile(tempFile, "success", "success-" + timestamp + "-" + fileName);
+            logger.info("Successfully processed and uploaded file to S3: success/{}", "success-" + timestamp + "-" + fileName);
+            return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(savedProducts));
+
+        } catch (IOException e) {
+            logger.error("Failed to upload file to S3: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Response.error(List.of("Failed to upload file to S3: " + e.getMessage())));
+        } finally {
+            if (tempFile != null) {
+                try {
+                    Files.deleteIfExists(tempFile);
+                } catch (IOException e) {
+                    logger.error("Failed to delete temp file: {}", e.getMessage());
+                }
+            }
         }
-
-        List<ProductRequest> productRequests;
-
-        try{
-            productRequests = ExcelHelper.excelToProductList(file.getInputStream());
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("File Not Found"));
-        }
-
-        List<ProductResponse> savedProducts = new ArrayList<>();
-
-        for (ProductRequest request : productRequests) {
-
-            if (request.getName() == null || request.getName().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Name is null or empty"));
-            }
-            if (request.getProductCode() == null || request.getProductCode().isEmpty() || request.getProductCode().length() > 50 ||
-                    productService.isProductCodeDuplicate(request.getProductCode())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product Code is invalid or already exists"));
-            }
-            if (request.getPrice() == null || request.getPrice().doubleValue() < 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Price is null or negative"));
-            }
-            if (request.getQuantity() == null || request.getQuantity() < 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Quantity is null or negative"));
-            }
-
-            Product product = new Product();
-            product.setName(request.getName());
-            product.setProductCode(request.getProductCode());
-            product.setDescription(request.getDescription());
-            product.setPrice(request.getPrice());
-            product.setQuantity(request.getQuantity());
-            product.setUnit(request.getUnit());
-            product.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
-            product.setCreatedAt(LocalDateTime.now());
-
-            Product savedProduct = productService.createProduct(product);
-            savedProducts.add(ProductResponse.convertProduct(savedProduct));
-        }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(savedProducts));
     }
 
     @PutMapping("/update-product/{id}")

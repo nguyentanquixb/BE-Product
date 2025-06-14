@@ -19,8 +19,13 @@ public class ProductResponse {
     private String description;
     private BigDecimal price;
     private Integer quantity;
-    private Long unit;
+    private Integer minStock;
+    private String unit;
+    private String barcode;
     private ProductStatusEnum status;
+    private Long categoryId;
+    private Long warehouseId;
+    private Long supplierId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -32,12 +37,15 @@ public class ProductResponse {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
+                .minStock(product.getMinStock())
                 .unit(product.getUnit())
-
+                .barcode(product.getBarcode())
+                .status(product.getStatus())
+                .categoryId(product.getCategory().getId())
+                .warehouseId(product.getWarehouse().getId())
+                .supplierId(product.getSupplier().getId())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build();
-
     }
-
 }

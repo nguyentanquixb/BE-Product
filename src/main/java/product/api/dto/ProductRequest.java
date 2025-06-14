@@ -16,7 +16,7 @@ public class ProductRequest {
     private String description;
     private BigDecimal price;
     private Integer quantity;
-    private Long unit;
+    private String unit;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

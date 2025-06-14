@@ -18,6 +18,7 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
     private Long id;
 
     @Column(name = "product_code", length = 50, nullable = false, unique = true)
@@ -36,18 +37,34 @@ public class Product {
     private Integer quantity = 0;
 
     @Column(name = "unit", nullable = false)
-    private Long unit;
+    private String unit;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ProductStatusEnum status;
-
-
 
     @Column(name = "createdAt",updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updatedAt",updatable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "barcode", length = 100)
+    private String barcode;
+
+    @Column(name = "min_stock", nullable = false)
+    private Integer minStock;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private Warehouse warehouse;
+
+    @ManyToOne
+    @JoinColumn(name = "supplier_id", nullable = false)
+    private Supplier supplier;
 }
 
