@@ -3,11 +3,8 @@ package product.api.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import product.api.response.ProductResponse;
 import product.api.response.Response;
 import product.api.service.InventoryService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/Inventory")
@@ -29,7 +26,7 @@ public class InventoryController {
 
     @GetMapping("/low-stock")
     @PreAuthorize("hasAuthority('VIEW_INVENTORY')")
-    public ResponseEntity<List<ProductResponse>> getLowStockProducts() {
-        return ResponseEntity.ok(inventoryService.getLowStockProducts());
+    public ResponseEntity<Response> getLowStockProducts() {
+        return ResponseEntity.ok(Response.ok(inventoryService.getLowStockProducts()));
     }
 }

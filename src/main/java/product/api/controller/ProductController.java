@@ -154,7 +154,7 @@ public class ProductController {
     @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<Response> createProductExcel(@RequestParam("file") MultipartFile file) {
 
-        logger.info("API /create-product-excel called at {}", LocalDateTime.now());
+        logger.info("API create-product-excel called at {}", LocalDateTime.now());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String timestamp = LocalDateTime.now().format(formatter);
