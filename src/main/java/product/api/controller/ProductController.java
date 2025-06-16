@@ -214,7 +214,7 @@ public class ProductController {
     @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<Response> deleteProducts(@RequestBody List<Long> productIds) {
         if (productIds == null || productIds.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product list is empty"));
+            return ResponseError.errorResponse("Product list is empty");
         }
 
         List<Long> notIds = new ArrayList<>();
