@@ -10,6 +10,7 @@ import product.api.entity.Permission;
 import product.api.repository.PermissionRepository;
 import product.api.response.Response;
 import product.api.service.PermissionService;
+import product.api.utils.ResponseError;
 
 
 import java.time.LocalDateTime;
@@ -32,7 +33,7 @@ public class PermissionController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response> crPermission(@RequestBody List<PermissionRequest> permissionRequests) {
         if (permissionRequests == null || permissionRequests.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Permission list is empty"));
+            return ResponseError.errorResponse("Permission list is empty");
         }
 
         Set<String> existingPermissionNames = permissionService.getAllPermissionNames();

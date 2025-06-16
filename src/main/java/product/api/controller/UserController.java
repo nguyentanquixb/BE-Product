@@ -18,6 +18,7 @@ import product.api.entity.User;
 import product.api.response.Response;
 import product.api.service.PermissionService;
 import product.api.service.UserService;
+import product.api.utils.ResponseError;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public class UserController {
         }
 
         if (assignPermissionRequest.getPermissionIds() == null || assignPermissionRequest.getPermissionIds().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Permission list is empty"));
+            return ResponseError.errorResponse("Permission list is empty");
         }
 
         User user = userOptional.get();
@@ -73,7 +74,7 @@ public class UserController {
                 .toList();
 
         if (permissions.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("No new permissions to assign"));
+            return ResponseError.errorResponse("No new permissions to assign");
         }
 
         user.getPermissions().addAll(permissions);
