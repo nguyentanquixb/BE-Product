@@ -29,9 +29,14 @@ public class ExcelHelper {
             product.setDescription(row.getCell(2).getStringCellValue());
             product.setPrice(BigDecimal.valueOf(row.getCell(3).getNumericCellValue()));
             product.setQuantity((int) row.getCell(4).getNumericCellValue());
-            product.setUnit((long) row.getCell(5).getNumericCellValue());
+            product.setUnit(row.getCell(5).getStringCellValue());
             product.setStatus(row.getCell(6).getStringCellValue());
             product.setCreatedAt(LocalDateTime.now());
+            product.setBarcode(row.getCell(7).getStringCellValue());
+            product.setMinStock((int) row.getCell(8).getNumericCellValue());
+            product.setCategoryId((long) row.getCell(9).getNumericCellValue());
+            product.setWarehouseId((long) row.getCell(10).getNumericCellValue());
+            product.setSupplierId((long) row.getCell(11).getNumericCellValue());
 
             productRequests.add(product);
         }
