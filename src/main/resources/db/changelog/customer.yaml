@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: customer-1
+      author: BE PRODUCT
+      changes:
+        - createTable:
+            tableName: customer
+            schemaName: product_liquibase
+            columns:
+              - column:
+                  name: customer_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: contact_info
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: createdAt
+                  type: TIMESTAMP
+              - column:
+                  name: updatedAt
+                  type: TIMESTAMP

@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: warehouse-1
+      author: BE PRODUCT
+      changes:
+        - createTable:
+            tableName: warehouse
+            schemaName: product_liquibase
+            columns:
+              - column:
+                  name: warehouse_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: location
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: capacity
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: createdAt
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updatedAt
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false

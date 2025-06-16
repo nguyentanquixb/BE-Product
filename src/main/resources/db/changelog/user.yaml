@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: user-1
+      author: BE PRODUCT
+      changes:
+        - createTable:
+            tableName: users
+            schemaName: product_liquibase
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: full_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false

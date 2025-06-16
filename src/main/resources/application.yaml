@@ -10,7 +10,10 @@ spring:
     aws:
       region:
         static: ap-southeast-1
-
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+    default-schema: product_liquibase
 aws:
   region: ap-southeast-1
   s3:

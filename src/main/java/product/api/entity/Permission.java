@@ -13,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "permissions", schema = "product_api")
+@Table(name = "permissions", schema = "product_liquibase")
 public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

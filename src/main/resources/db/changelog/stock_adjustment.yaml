@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: stock-adjustment-1
+      author: BE PRODUCT
+      changes:
+        - createTable:
+            tableName: stock_adjustment
+            schemaName: product_liquibase
+            columns:
+              - column:
+                  name: adjustment_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: warehouse_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reason
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: adjustment_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: createdAt
+                  type: TIMESTAMP
+              - column:
+                  name: updatedAt
+                  type: TIMESTAMP
+        - addForeignKeyConstraint:
+            baseTableName: stock_adjustment
+            baseColumnNames: product_id
+            constraintName: fk_stock_adjustment_product
+            referencedTableName: product
+            referencedColumnNames: product_id
+            baseTableSchemaName: product_liquibase
+            referencedTableSchemaName: product_liquibase
+        - addForeignKeyConstraint:
+            baseTableName: stock_adjustment
+            baseColumnNames: warehouse_id
+            constraintName: fk_stock_adjustment_warehouse
+            referencedTableName: warehouse
+            referencedColumnNames: warehouse_id
+            baseTableSchemaName: product_liquibase
+            referencedTableSchemaName: product_liquibase

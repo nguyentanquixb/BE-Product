@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/supplier.yaml
+  - include:
+      file: db/changelog/category.yaml
+  - include:
+      file: db/changelog/customer.yaml
+  - include:
+      file: db/changelog/warehouse.yaml
+  - include:
+      file: db/changelog/permission.yaml
+  - include:
+      file: db/changelog/user.yaml
+  - include:
+      file: db/changelog/product.yaml
+  - include:
+      file: db/changelog/PurchaseOrder .yaml
+  - include:
+      file: db/changelog/purchase_order_detail.yaml
+
+  - include:
+      file: db/changelog/sales_order.yaml
+  - include:
+      file: db/changelog/sales_order_detail.yaml
+  - include:
+      file: db/changelog/InventoryTransaction.yaml
+  - include:
+      file: db/changelog/stock_adjustment.yaml

@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: inventory-transaction-1
+      author: BE PRODUCT
+      changes:
+        - createTable:
+            tableName: inventory_transaction
+            schemaName: product_liquibase
+            columns:
+              - column:
+                  name: transaction_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: warehouse_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: transaction_date
+                  type: TIMESTAMP
+              - column:
+                  name: reference_id
+                  type: BIGINT
+              - column:
+                  name: createdAt
+                  type: TIMESTAMP
+              - column:
+                  name: updatedAt
+                  type: TIMESTAMP
+        - addForeignKeyConstraint:
+            baseTableName: inventory_transaction
+            baseColumnNames: product_id
+            constraintName: fk_inventory_transaction_product
+            referencedTableName: product
+            referencedColumnNames: product_id
+            baseTableSchemaName: product_liquibase
+            referencedTableSchemaName: product_liquibase
+        - addForeignKeyConstraint:
+            baseTableName: inventory_transaction
+            baseColumnNames: warehouse_id
+            constraintName: fk_inventory_transaction_warehouse
+            referencedTableName: warehouse
+            referencedColumnNames: warehouse_id
+            baseTableSchemaName: product_liquibase
+            referencedTableSchemaName: product_liquibase
