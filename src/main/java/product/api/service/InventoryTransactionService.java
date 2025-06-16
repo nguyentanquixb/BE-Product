@@ -6,7 +6,7 @@ import product.api.entity.InventoryTransaction;
 import product.api.entity.Product;
 import product.api.entity.TransactionTypeEnum;
 import product.api.entity.Warehouse;
-import product.api.exception.EntityNotFoundException;
+import product.api.exception.NotFoundException;
 import product.api.repository.InventoryTransactionRepository;
 import product.api.repository.ProductRepository;
 import product.api.response.InventoryTransactionResponse;
@@ -52,10 +52,10 @@ public class InventoryTransactionService {
 
     public InventoryTransactionResponse recordTransaction(InventoryTransactionRequest request) {
         Product product = productService.getProductById(request.getProductId())
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                .orElseThrow(() -> new NotFoundException("Product not found"));
 
         Warehouse warehouse = warehouseService.getWarehouseById(request.getWarehouseId())
-                .orElseThrow(() -> new EntityNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new NotFoundException("Warehouse not found"));
 
         product.setQuantity(product.getQuantity() + request.getQuantity());
         productRepository.save(product);

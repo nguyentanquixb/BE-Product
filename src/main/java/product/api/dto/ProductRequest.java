@@ -1,13 +1,15 @@
 package product.api.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductRequest {
 
     private Long id;

@@ -28,7 +28,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/product")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
@@ -243,5 +242,16 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.OK).body(Response.ok(updatedProducts));
     }
+
+    @GetMapping("/searchProducts")
+    public ResponseEntity<List<ProductRequest>> searchProducts(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long category_id,
+            @RequestParam(required = false) Long warehouse_id) {
+
+        List<ProductRequest> products = productService.searchProducts(search, category_id, warehouse_id);
+        return ResponseEntity.ok(products);
+    }
+
 
 }

@@ -2,7 +2,7 @@ package product.api.service;
 
 import org.springframework.stereotype.Service;
 import product.api.entity.Category;
-import product.api.exception.EntityNotFoundException;
+import product.api.exception.NotFoundException;
 import product.api.repository.CategoryRepository;
 
 import java.util.List;
@@ -38,6 +38,6 @@ public class CategoryService {
     }
 
     public Category findCategory(Long id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category"));
+        return categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category"));
     }
 }

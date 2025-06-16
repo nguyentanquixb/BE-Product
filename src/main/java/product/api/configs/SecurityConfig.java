@@ -31,10 +31,12 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/product",
+                                "/product/**",
+                                "/Inventory/**",
                                 "/purchase-orders",
                                 "/inventory-transactions",
                                 "/product/test-credentials",
+                                "/stock-adjustments",
                                 "/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )

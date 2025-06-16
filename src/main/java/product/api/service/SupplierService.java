@@ -2,7 +2,7 @@ package product.api.service;
 
 import org.springframework.stereotype.Service;
 import product.api.entity.Supplier;
-import product.api.exception.EntityNotFoundException;
+import product.api.exception.NotFoundException;
 import product.api.repository.SupplierRepository;
 
 import java.util.List;
@@ -17,8 +17,8 @@ public class SupplierService {
         this.supplierRepository = supplierRepository;
     }
 
-    public Optional<Supplier> getSupplierById(Long id) {
-        return supplierRepository.findById(id);
+    public Supplier findById(Long id) {
+        return supplierRepository.findById(id).orElseThrow(() -> new NotFoundException("supplier"));
     }
 
     public List<Supplier> getAllSuppliers() {
@@ -29,7 +29,11 @@ public class SupplierService {
         return supplierRepository.save(supplier);
     }
 
-    public Supplier updateSupplier(Supplier supplier) {
+    public Supplier updateSupplier(Long id, Supplier updatedSupplier) {
+        Supplier supplier = findById(id);
+        supplier.setName(updatedSupplier.getName());
+        supplier.setContactInfo(updatedSupplier.getContactInfo());
+        supplier.setAddress(updatedSupplier.getAddress());
         return supplierRepository.save(supplier);
     }
 
@@ -38,6 +42,6 @@ public class SupplierService {
     }
 
     public Supplier findSupplier(Long id) {
-        return supplierRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Supplier"));
+        return supplierRepository.findById(id).orElseThrow(() -> new NotFoundException("Supplier"));
     }
 }

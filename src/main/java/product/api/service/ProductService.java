@@ -3,13 +3,16 @@ package product.api.service;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import product.api.dto.ProductRequest;
 import product.api.entity.Product;
 import product.api.entity.ProductStatusEnum;
-import product.api.exception.EntityNotFoundException;
+import product.api.exception.NotFoundException;
 import product.api.repository.ProductRepository;
 import product.api.response.ProductResponse;
+import product.api.specification.ProductSpecification;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,10 @@ public class ProductService {
 
     public Optional<Product> getProductById(Long id){
         return productRepository.findById(id);
+    }
+
+    public Product findById(Long id){
+        return productRepository.findById(id).orElseThrow(() -> new NotFoundException("product"));
     }
 
     public List<Product> getAllProduct(){
@@ -68,7 +75,7 @@ public class ProductService {
 
     public Product updateProduct(ProductRequest request) {
         Product existingProduct = productRepository.findById(request.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                .orElseThrow(() -> new NotFoundException("Product not found"));
 
         existingProduct.setName(request.getName());
         existingProduct.setProductCode(request.getProductCode());
@@ -125,6 +132,33 @@ public class ProductService {
 
         return savedProducts;
     }
+
+    public List<ProductRequest> searchProducts(String keyword, Long categoryId, Long warehouseId) {
+        Specification<Product> spec = ProductSpecification.filterByCriteria(keyword, categoryId, warehouseId);
+        List<Product> products = productRepository.findAll(spec);
+
+        List<ProductRequest> productRequests = new ArrayList<>();
+        for (Product product : products) {
+            ProductRequest dto = ProductRequest.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .productCode(product.getProductCode())
+                    .categoryId(product.getCategory().getId())
+                    .warehouseId(product.getWarehouse().getId())
+                    .supplierId(product.getSupplier().getId())
+                    .price(product.getPrice())
+                    .quantity(product.getQuantity())
+                    .unit(product.getUnit())
+                    .barcode(product.getBarcode())
+                    .minStock(product.getMinStock())
+                    .status(String.valueOf(product.getStatus()))
+                    .build();
+            productRequests.add(dto);
+        }
+
+        return productRequests;
+    }
+
 
 
 }

@@ -1,10 +1,12 @@
 package product.api.service;
 
 import org.springframework.stereotype.Service;
+import product.api.dto.WarehouseDTO;
 import product.api.entity.Warehouse;
-import product.api.exception.EntityNotFoundException;
+import product.api.exception.NotFoundException;
 import product.api.repository.WarehouseRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,8 +30,18 @@ public class WarehouseService {
     public Warehouse createWarehouse(Warehouse warehouse) {
         return warehouseRepository.save(warehouse);
     }
+    public Warehouse findById(Long id){
+        return warehouseRepository.findById(id).orElseThrow(() -> new NotFoundException("Warehouse"));
+    }
 
-    public Warehouse updateWarehouse(Warehouse warehouse) {
+    public Warehouse updateWarehouse(Long id, WarehouseDTO warehouseDTO) {
+        Warehouse warehouse = findById(id);
+
+        warehouse.setName(warehouseDTO.getName());
+        warehouse.setLocation(warehouseDTO.getLocation());
+        warehouse.setCapacity(warehouseDTO.getCapacity());
+        warehouse.setUpdatedAt(LocalDateTime.now());
+
         return warehouseRepository.save(warehouse);
     }
 
@@ -38,6 +50,6 @@ public class WarehouseService {
     }
 
     public Warehouse findWarehouse(Long id) {
-        return warehouseRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Warehouse"));
+        return warehouseRepository.findById(id).orElseThrow(() -> new NotFoundException("Warehouse"));
     }
 }

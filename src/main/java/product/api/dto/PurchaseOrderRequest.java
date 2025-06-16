@@ -1,7 +1,6 @@
 package product.api.dto;
 
 import lombok.*;
-
 import java.math.BigDecimal;
 import java.util.List;
 
