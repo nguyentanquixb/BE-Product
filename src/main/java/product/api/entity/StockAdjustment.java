@@ -15,7 +15,7 @@ public class StockAdjustment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "adjustmentId")
+    @Column(name = "adjustment_id")
     private Long id;
 
     @ManyToOne

@@ -2,7 +2,6 @@ package product.api.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -12,19 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import product.api.dto.ProductRequest;
 import product.api.entity.Product;
-import product.api.entity.ProductStatusEnum;
-import product.api.repository.CategoryRepository;
-import product.api.repository.SupplierRepository;
-import product.api.repository.WarehouseRepository;
 import product.api.response.ProductResponse;
 import product.api.response.Response;
 import product.api.service.ProductService;
 import product.api.service.S3Service;
-import product.api.utils.EntityFind;
 import product.api.utils.ExcelHelper;
 import product.api.utils.ResponseError;
 import product.api.validate.ProductValidate;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,25 +37,12 @@ public class ProductController {
 
     private final ProductService productService;
 
-    private final CategoryRepository categoryRepository;
+    private final ProductValidate productValidate;
 
-    private final WarehouseRepository warehouseRepository;
-
-    private final SupplierRepository supplierRepository;
-
-    @Autowired
-    private ProductValidate productValidate;
-
-    @Autowired
-    private EntityFind entityFind;
-
-    public ProductController(ProductService productService, S3Service s3Service, CategoryRepository categoryRepository, WarehouseRepository warehouseRepository, SupplierRepository supplierRepository, ProductValidate productValidator1) {
+    public ProductController(ProductService productService, S3Service s3Service,ProductValidate productValidate) {
         this.productService = productService;
         this.s3Service = s3Service;
-        this.categoryRepository = categoryRepository;
-        this.warehouseRepository = warehouseRepository;
-        this.supplierRepository = supplierRepository;
-
+        this.productValidate = productValidate;
     }
 
     @GetMapping("/{id}")

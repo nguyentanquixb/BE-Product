@@ -2,7 +2,6 @@ package product.api.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
@@ -15,6 +14,7 @@ public class Warehouse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "warehouse_id")
     private Long id;
 
     @Column(nullable = false)

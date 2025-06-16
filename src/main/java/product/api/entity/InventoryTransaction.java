@@ -15,7 +15,7 @@ public class InventoryTransaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transactionId")
+    @Column(name = "transaction_id")
     private Long id;
 
     @ManyToOne

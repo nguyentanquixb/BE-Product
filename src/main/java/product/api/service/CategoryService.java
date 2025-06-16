@@ -2,6 +2,7 @@ package product.api.service;
 
 import org.springframework.stereotype.Service;
 import product.api.entity.Category;
+import product.api.exception.EntityNotFoundException;
 import product.api.repository.CategoryRepository;
 
 import java.util.List;
@@ -34,5 +35,9 @@ public class CategoryService {
 
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
+    }
+
+    public Category findCategory(Long id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category"));
     }
 }

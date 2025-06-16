@@ -1,11 +1,8 @@
 package product.api.service;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import product.api.dto.ProductRequest;
 import product.api.entity.Product;
@@ -13,9 +10,6 @@ import product.api.entity.ProductStatusEnum;
 import product.api.exception.EntityNotFoundException;
 import product.api.repository.ProductRepository;
 import product.api.response.ProductResponse;
-import product.api.response.Response;
-import product.api.utils.EntityFind;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,13 +19,15 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    final SupplierService supplierService;
+    final CategoryService categoryService;
+    final WarehouseService warehouseService;
 
-    @Autowired
-    private  EntityFind entityFind;
-
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, SupplierService supplierService, CategoryService categoryService, WarehouseService warehouseService) {
         this.productRepository = productRepository;
-
+        this.supplierService = supplierService;
+        this.categoryService = categoryService;
+        this.warehouseService = warehouseService;
     }
 
     public Optional<Product> getProductById(Long id){
@@ -55,9 +51,9 @@ public class ProductService {
         product.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
         product.setCreatedAt(LocalDateTime.now());
 
-        product.setCategory(entityFind.findCategory(request.getCategoryId()));
-        product.setWarehouse(entityFind.findWarehouse(request.getWarehouseId()));
-        product.setSupplier(entityFind.findSupplier(request.getSupplierId()));
+        product.setCategory(categoryService.findCategory(request.getCategoryId()));
+        product.setWarehouse(warehouseService.findWarehouse(request.getWarehouseId()));
+        product.setSupplier(supplierService.findSupplier(request.getSupplierId()));
 
         return productRepository.save(product);
     }
@@ -85,9 +81,9 @@ public class ProductService {
         existingProduct.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
         existingProduct.setUpdatedAt(LocalDateTime.now());
 
-        existingProduct.setCategory(entityFind.findCategory(request.getCategoryId()));
-        existingProduct.setWarehouse(entityFind.findWarehouse(request.getWarehouseId()));
-        existingProduct.setSupplier(entityFind.findSupplier(request.getSupplierId()));
+        existingProduct.setCategory(categoryService.findCategory(request.getCategoryId()));
+        existingProduct.setWarehouse(warehouseService.findWarehouse(request.getWarehouseId()));
+        existingProduct.setSupplier(supplierService.findSupplier(request.getSupplierId()));
 
         return productRepository.save(existingProduct);
 
@@ -122,12 +118,13 @@ public class ProductService {
             product.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
             product.setCreatedAt(LocalDateTime.now());
 
-            product.setCategory(entityFind.findCategory(request.getCategoryId()));
-            product.setWarehouse(entityFind.findWarehouse(request.getWarehouseId()));
-            product.setSupplier(entityFind.findSupplier(request.getSupplierId()));
+            product.setCategory(categoryService.findCategory(request.getCategoryId()));
+            product.setWarehouse(warehouseService.findWarehouse(request.getWarehouseId()));
+            product.setSupplier(supplierService.findSupplier(request.getSupplierId()));
         }
 
         return savedProducts;
     }
+
 
 }

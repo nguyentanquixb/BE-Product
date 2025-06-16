@@ -5,8 +5,6 @@ import product.api.entity.Product;
 import product.api.entity.ProductStatusEnum;
 import product.api.repository.ProductRepository;
 import product.api.response.ProductResponse;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

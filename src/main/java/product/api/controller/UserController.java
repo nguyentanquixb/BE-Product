@@ -1,6 +1,5 @@
 package product.api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +17,6 @@ import product.api.entity.User;
 import product.api.response.Response;
 import product.api.service.PermissionService;
 import product.api.service.UserService;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,11 +24,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private PermissionService permissionService;
+    private final PermissionService permissionService;
+
+    public UserController(UserService userService, PermissionService permissionService) {
+        this.userService = userService;
+        this.permissionService = permissionService;
+    }
 
     @PostMapping("/create-user")
     @PreAuthorize("hasAuthority('ADMIN')")

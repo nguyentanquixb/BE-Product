@@ -1,17 +1,13 @@
 package product.api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import product.api.dto.PermissionRequest;
 import product.api.entity.Permission;
-import product.api.repository.PermissionRepository;
 import product.api.response.Response;
 import product.api.service.PermissionService;
-
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;

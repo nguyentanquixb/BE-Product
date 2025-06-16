@@ -1,9 +1,6 @@
 package product.api.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 
 @Getter
 public enum ProductStatusEnum {

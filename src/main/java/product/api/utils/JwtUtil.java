@@ -3,28 +3,36 @@ package product.api.utils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import product.api.entity.Permission;
 import product.api.entity.User;
 import product.api.repository.UserRepository;
 import product.api.response.JwtTokenResponse;
-
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 
 @Component
 public class JwtUtil {
 
-    @Autowired
-    private UserRepository userRepository;
-    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(JwtUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
+    private final UserRepository userRepository;
+
+    static {
+        org.slf4j.LoggerFactory.getLogger(JwtUtil.class);
+    }
+
     private static final String SECRET_KEY = "@!#%5458980/&)qwtrhmtyjtyjtewvcnvmbgjgh";
+
+    public JwtUtil(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
@@ -42,7 +50,7 @@ public class JwtUtil {
 
         List<String> permissions = user.getPermissions().stream()
                 .map(Permission::getName)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         String token = Jwts.builder()
                 .setSubject(userDetails.getUsername())
@@ -62,7 +70,7 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
 
-        System.out.println("Extracted claims: " + claims);
+        log.info("Extracted claims: {}", claims);
         return claims;
     }
 

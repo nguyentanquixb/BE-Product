@@ -1,13 +1,9 @@
 package product.api.service;
 
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import product.api.entity.Permission;
 import product.api.repository.PermissionRepository;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 

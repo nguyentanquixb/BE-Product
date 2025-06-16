@@ -15,7 +15,7 @@ public class PurchaseOrderDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "detailId")
+    @Column(name = "detail_id")
     private Long id;
 
     @ManyToOne

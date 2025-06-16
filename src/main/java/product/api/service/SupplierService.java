@@ -2,6 +2,7 @@ package product.api.service;
 
 import org.springframework.stereotype.Service;
 import product.api.entity.Supplier;
+import product.api.exception.EntityNotFoundException;
 import product.api.repository.SupplierRepository;
 
 import java.util.List;
@@ -34,5 +35,9 @@ public class SupplierService {
 
     public void deleteSupplier(Long id) {
         supplierRepository.deleteById(id);
+    }
+
+    public Supplier findSupplier(Long id) {
+        return supplierRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Supplier"));
     }
 }

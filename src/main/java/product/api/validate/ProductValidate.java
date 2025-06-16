@@ -1,35 +1,32 @@
 package product.api.validate;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import product.api.dto.ProductRequest;
 import product.api.entity.ProductStatusEnum;
 import product.api.repository.CategoryRepository;
 import product.api.repository.SupplierRepository;
 import product.api.repository.WarehouseRepository;
-import product.api.response.Response;
 import product.api.service.ProductService;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class ProductValidate {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
-    @Autowired
-    private WarehouseRepository warehouseRepository;
+    private final WarehouseRepository warehouseRepository;
 
-    @Autowired
-    private SupplierRepository supplierRepository;
+    private final SupplierRepository supplierRepository;
+
+    public ProductValidate(ProductService productService, CategoryRepository categoryRepository, WarehouseRepository warehouseRepository, SupplierRepository supplierRepository) {
+        this.productService = productService;
+        this.categoryRepository = categoryRepository;
+        this.warehouseRepository = warehouseRepository;
+        this.supplierRepository = supplierRepository;
+    }
 
     public List<String> validateProduct(ProductRequest request) {
         List<String> errors = new ArrayList<>();

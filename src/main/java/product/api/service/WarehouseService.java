@@ -2,6 +2,7 @@ package product.api.service;
 
 import org.springframework.stereotype.Service;
 import product.api.entity.Warehouse;
+import product.api.exception.EntityNotFoundException;
 import product.api.repository.WarehouseRepository;
 
 import java.util.List;
@@ -34,5 +35,9 @@ public class WarehouseService {
 
     public void deleteWarehouse(Long id) {
         warehouseRepository.deleteById(id);
+    }
+
+    public Warehouse findWarehouse(Long id) {
+        return warehouseRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Warehouse"));
     }
 }
