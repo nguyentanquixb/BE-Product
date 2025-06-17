@@ -1,5 +1,6 @@
 package product.api.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import product.api.dto.InventoryTransactionRequest;
 import product.api.entity.InventoryTransaction;
@@ -52,10 +53,10 @@ public class InventoryTransactionService {
 
     public InventoryTransactionResponse recordTransaction(InventoryTransactionRequest request) {
         Product product = productService.getProductById(request.getProductId())
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Product Not Found"));
 
         Warehouse warehouse = warehouseService.getWarehouseById(request.getWarehouseId())
-                .orElseThrow(() -> new NotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Warehouse Not Found"));
 
         product.setQuantity(product.getQuantity() + request.getQuantity());
         productRepository.save(product);

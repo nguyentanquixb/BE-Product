@@ -39,9 +39,9 @@ public class InventoryTransaction {
     @Column(name = "reference_id")
     private Long referenceId;
 
-    @Column(name = "createdAt", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt", updatable = false)
+    @Column(name = "updated_at", updatable = false)
     private LocalDateTime updatedAt;
 }

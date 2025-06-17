@@ -1,12 +1,11 @@
 package product.api.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import product.api.entity.Supplier;
 import product.api.exception.NotFoundException;
 import product.api.repository.SupplierRepository;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SupplierService {
@@ -18,7 +17,7 @@ public class SupplierService {
     }
 
     public Supplier findById(Long id) {
-        return supplierRepository.findById(id).orElseThrow(() -> new NotFoundException("supplier"));
+        return supplierRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Supplier Not Found"));
     }
 
     public List<Supplier> getAllSuppliers() {
@@ -42,6 +41,6 @@ public class SupplierService {
     }
 
     public Supplier findSupplier(Long id) {
-        return supplierRepository.findById(id).orElseThrow(() -> new NotFoundException("Supplier"));
+        return supplierRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Supplier Not Found"));
     }
 }

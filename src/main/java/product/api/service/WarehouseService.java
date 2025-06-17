@@ -1,5 +1,6 @@
 package product.api.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import product.api.dto.WarehouseDTO;
 import product.api.entity.Warehouse;
@@ -31,7 +32,7 @@ public class WarehouseService {
         return warehouseRepository.save(warehouse);
     }
     public Warehouse findById(Long id){
-        return warehouseRepository.findById(id).orElseThrow(() -> new NotFoundException("Warehouse"));
+        return warehouseRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Warehouse Not Found"));
     }
 
     public Warehouse updateWarehouse(Long id, WarehouseDTO warehouseDTO) {
@@ -50,6 +51,6 @@ public class WarehouseService {
     }
 
     public Warehouse findWarehouse(Long id) {
-        return warehouseRepository.findById(id).orElseThrow(() -> new NotFoundException("Warehouse"));
+        return warehouseRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Warehouse Not Found"));
     }
 }

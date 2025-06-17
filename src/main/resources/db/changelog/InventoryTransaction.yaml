@@ -40,10 +40,10 @@ databaseChangeLog:
                   name: reference_id
                   type: BIGINT
               - column:
-                  name: createdAt
+                  name: created_at
                   type: TIMESTAMP
               - column:
-                  name: updatedAt
+                  name: updated_at
                   type: TIMESTAMP
         - addForeignKeyConstraint:
             baseTableName: inventory_transaction

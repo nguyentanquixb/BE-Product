@@ -4,13 +4,13 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class NotFoundException extends RuntimeException {
+public class BadRequestException extends RuntimeException {
 
     private final HttpStatus status;
 
-    public NotFoundException(HttpStatus status, String message) {
+    public BadRequestException(String message) {
         super(message);
-        this.status = status;
+        this.status = HttpStatus.BAD_REQUEST;
     }
 
 }

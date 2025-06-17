@@ -34,10 +34,10 @@ public class PurchaseOrder {
     @Column(name = "total_amount", precision = 15, scale = 2, nullable = false)
     private BigDecimal totalAmount;
 
-    @Column(name = "createdAt", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt", updatable = false)
+    @Column(name = "updated_at", updatable = false)
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "purchaseOrder")

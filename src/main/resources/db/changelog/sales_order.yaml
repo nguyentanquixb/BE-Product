@@ -37,10 +37,10 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: createdAt
+                  name: created_at
                   type: TIMESTAMP
               - column:
-                  name: updatedAt
+                  name: updated_at
                   type: TIMESTAMP
         - addForeignKeyConstraint:
             baseTableName: sales_order

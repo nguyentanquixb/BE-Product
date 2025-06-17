@@ -37,6 +37,7 @@ public class SecurityConfig {
                                 "/inventory-transactions",
                                 "/product/test-credentials",
                                 "/stock-adjustments",
+                                "/users/create-user",
                                 "/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )

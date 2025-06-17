@@ -27,9 +27,9 @@ public class Customer {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "createdAt", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt", updatable = false)
+    @Column(name = "updated_at", updatable = false)
     private LocalDateTime updatedAt;
 }

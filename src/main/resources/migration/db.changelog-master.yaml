@@ -17,7 +17,6 @@ databaseChangeLog:
       file: db/changelog/PurchaseOrder .yaml
   - include:
       file: db/changelog/purchase_order_detail.yaml
-
   - include:
       file: db/changelog/sales_order.yaml
   - include:
@@ -26,3 +25,9 @@ databaseChangeLog:
       file: db/changelog/InventoryTransaction.yaml
   - include:
       file: db/changelog/stock_adjustment.yaml
+  - include:
+      file: db/changelog/user-add-created-updated.yaml
+  - include:
+      file: db/changelog/add-password-column.yaml
+  - include:
+      file: db/changelog/user_permissions.yaml

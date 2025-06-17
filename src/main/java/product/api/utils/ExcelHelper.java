@@ -21,7 +21,9 @@ public class ExcelHelper {
         Sheet sheet = workbook.getSheetAt(0);
 
         for (Row row : sheet) {
-            if (row.getRowNum() == 0) continue;
+            if (row.getRowNum() == 0) {
+                continue;
+            }
 
             ProductRequest product = new ProductRequest();
             product.setName(row.getCell(0).getStringCellValue());

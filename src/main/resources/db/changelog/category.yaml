@@ -22,12 +22,12 @@ databaseChangeLog:
                   name: description
                   type: TEXT
               - column:
-                  name: createdAt
+                  name: created_at
                   type: TIMESTAMP
                   constraints:
                     nullable: false
               - column:
-                  name: updatedAt
+                  name: updated_at
                   type: TIMESTAMP
                   constraints:
                     nullable: false

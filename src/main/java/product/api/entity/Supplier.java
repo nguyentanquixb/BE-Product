@@ -20,15 +20,15 @@ public class Supplier {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name="contact_info",nullable = false)
     private String contactInfo;
 
     @Column(nullable = false)
     private String address;
 
-    @Column(updatable = false, nullable = false)
+    @Column(name = "created_at",updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at",nullable = false)
     private LocalDateTime updatedAt;
 }

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import product.api.dto.ProductRequest;
 import product.api.entity.Product;
@@ -12,7 +13,6 @@ import product.api.exception.NotFoundException;
 import product.api.repository.ProductRepository;
 import product.api.response.ProductResponse;
 import product.api.specification.ProductSpecification;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class ProductService {
     }
 
     public Product findById(Long id){
-        return productRepository.findById(id).orElseThrow(() -> new NotFoundException("product"));
+        return productRepository.findById(id).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Product Not Found"));
     }
 
     public List<Product> getAllProduct(){
@@ -55,7 +55,7 @@ public class ProductService {
         product.setMinStock(request.getMinStock());
         product.setUnit(request.getUnit());
         product.setBarcode(request.getBarcode());
-        product.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
+        product.setStatus(request.getStatus());
         product.setCreatedAt(LocalDateTime.now());
 
         product.setCategory(categoryService.findCategory(request.getCategoryId()));
@@ -75,7 +75,7 @@ public class ProductService {
 
     public Product updateProduct(ProductRequest request) {
         Product existingProduct = productRepository.findById(request.getId())
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Product Not Found"));
 
         existingProduct.setName(request.getName());
         existingProduct.setProductCode(request.getProductCode());
@@ -85,7 +85,7 @@ public class ProductService {
         existingProduct.setMinStock(request.getMinStock());
         existingProduct.setUnit(request.getUnit());
         existingProduct.setBarcode(request.getBarcode());
-        existingProduct.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
+        existingProduct.setStatus(request.getStatus());
         existingProduct.setUpdatedAt(LocalDateTime.now());
 
         existingProduct.setCategory(categoryService.findCategory(request.getCategoryId()));
@@ -122,7 +122,7 @@ public class ProductService {
             product.setMinStock(request.getMinStock());
             product.setUnit(request.getUnit());
             product.setBarcode(request.getBarcode());
-            product.setStatus(ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase()));
+            product.setStatus(request.getStatus());
             product.setCreatedAt(LocalDateTime.now());
 
             product.setCategory(categoryService.findCategory(request.getCategoryId()));
@@ -151,7 +151,7 @@ public class ProductService {
                     .unit(product.getUnit())
                     .barcode(product.getBarcode())
                     .minStock(product.getMinStock())
-                    .status(String.valueOf(product.getStatus()))
+                    .status(ProductStatusEnum.valueOf(String.valueOf(product.getStatus())))
                     .build();
             productRequests.add(dto);
         }

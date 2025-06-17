@@ -47,10 +47,10 @@ databaseChangeLog:
                   name: status
                   type: VARCHAR(50)
               - column:
-                  name: createdAt
+                  name: created_at
                   type: TIMESTAMP
               - column:
-                  name: updatedAt
+                  name: updated_at
                   type: TIMESTAMP
               - column:
                   name: barcode

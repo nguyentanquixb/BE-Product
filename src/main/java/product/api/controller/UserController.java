@@ -17,6 +17,8 @@ import product.api.entity.User;
 import product.api.response.Response;
 import product.api.service.PermissionService;
 import product.api.service.UserService;
+import product.api.utils.ResponseUtil;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,16 +36,15 @@ public class UserController {
     }
 
     @PostMapping("/create-user")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<User> createUser(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<Response> createUser(@RequestBody UserRequest userRequest) {
         User user = userService.saveUser(userRequest);
-        return ResponseEntity.ok(user);
+        return ResponseUtil.buildResponse(HttpStatus.OK, user);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+    public ResponseEntity<Response> getUserById(@PathVariable Long id) {
         UserDTO user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
+        return ResponseUtil.buildResponse(HttpStatus.OK, user);
     }
 
     @PostMapping("/permissions")
@@ -51,11 +52,11 @@ public class UserController {
     public ResponseEntity<Response> assignPermissionsToUser(@RequestBody AssignPermissionRequest assignPermissionRequest) {
         Optional<User> userOptional = userService.findById(assignPermissionRequest.getUserId());
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("User not found"));
+            return ResponseUtil.buildResponse(HttpStatus.NOT_FOUND, assignPermissionRequest.getUserId());
         }
 
         if (assignPermissionRequest.getPermissionIds() == null || assignPermissionRequest.getPermissionIds().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Permission list is empty"));
+            return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, assignPermissionRequest.getUserId());
         }
 
         User user = userOptional.get();
@@ -74,13 +75,13 @@ public class UserController {
                 .toList();
 
         if (permissions.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("No new permissions to assign"));
+            return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, assignPermissionRequest.getUserId());
         }
 
         user.getPermissions().addAll(permissions);
         userService.updateUser(user);
 
-        return ResponseEntity.ok(Response.ok(user));
+        return ResponseUtil.buildResponse(HttpStatus.OK, user);
     }
 }
 

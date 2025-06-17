@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user-permissions-table
+      author: BE PRODUCT
+      changes:
+        - createTable:
+            tableName: user_permissions
+            schemaName: product_liquibase
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: permission_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            columnNames: user_id, permission_id
+            tableName: user_permissions
+            constraintName: pk_user_permissions
+        - addForeignKeyConstraint:
+            baseTableName: user_permissions
+            baseColumnNames: user_id
+            constraintName: fk_user_permissions_users
+            referencedTableName: users
+            referencedColumnNames: id
+            baseTableSchemaName: product_liquibase
+            referencedTableSchemaName: product_liquibase
+        - addForeignKeyConstraint:
+            baseTableName: user_permissions
+            baseColumnNames: permission_id
+            constraintName: fk_user_permissions_permissions
+            referencedTableName: permissions
+            referencedColumnNames: id
+            baseTableSchemaName: product_liquibase
+            referencedTableSchemaName: product_liquibase

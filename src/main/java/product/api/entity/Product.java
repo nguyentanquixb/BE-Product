@@ -43,10 +43,10 @@ public class Product {
     @Column(name = "status")
     private ProductStatusEnum status;
 
-    @Column(name = "createdAt",updatable = false)
+    @Column(name = "created_at",updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt",updatable = false)
+    @Column(name = "updated_at",updatable = false)
     private LocalDateTime updatedAt;
 
     @Column(name = "barcode", length = 100)

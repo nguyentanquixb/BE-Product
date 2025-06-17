@@ -8,6 +8,8 @@ import product.api.dto.PermissionRequest;
 import product.api.entity.Permission;
 import product.api.response.Response;
 import product.api.service.PermissionService;
+import product.api.utils.ResponseUtil;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -57,6 +59,6 @@ public class PermissionController {
             permissions.add(permission);
         }
         permissionService.crPermission(permissions);
-        return ResponseEntity.status(HttpStatus.OK).body(Response.ok("Permissions created successfully"));
+        return ResponseUtil.buildResponse(HttpStatus.OK, permissions);
     }
 }

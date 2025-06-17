@@ -1,12 +1,14 @@
 package product.api.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import product.api.response.Response;
 import product.api.service.InventoryService;
+import product.api.utils.ResponseUtil;
 
 @RestController
-@RequestMapping("/Inventory")
+@RequestMapping("/inventory")
 public class InventoryController {
 
     private final InventoryService inventoryService;
@@ -19,11 +21,11 @@ public class InventoryController {
     public ResponseEntity<Response> getProductsByWarehouse(
             @RequestParam Long warehouseId,
             @RequestParam(required = false) String status) {
-        return ResponseEntity.ok(Response.ok(inventoryService.getProductsByWarehouse(warehouseId, status)));
+        return ResponseUtil.buildResponse(HttpStatus.OK, inventoryService.getProductsByWarehouse(warehouseId, status));
     }
 
     @GetMapping("/low-stock")
     public ResponseEntity<Response> getLowStockProducts() {
-        return ResponseEntity.ok(Response.ok(inventoryService.getLowStockProducts()));
+        return ResponseUtil.buildResponse(HttpStatus.OK, inventoryService.getLowStockProducts());
     }
 }

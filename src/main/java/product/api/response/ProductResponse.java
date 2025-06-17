@@ -1,6 +1,7 @@
 package product.api.response;
 
 import lombok.*;
+import product.api.dto.ProductRequest;
 import product.api.entity.Product;
 import product.api.entity.ProductStatusEnum;
 
@@ -48,4 +49,25 @@ public class ProductResponse {
                 .updatedAt(product.getUpdatedAt())
                 .build();
     }
+
+    public static ProductResponse convertFromRequest(ProductRequest request) {
+        return ProductResponse.builder()
+                .id(request.getId())
+                .name(request.getName())
+                .productCode(request.getProductCode())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .quantity(request.getQuantity())
+                .minStock(request.getMinStock())
+                .unit(request.getUnit())
+                .barcode(request.getBarcode())
+                .status(ProductStatusEnum.valueOf(String.valueOf(request.getStatus())))
+                .categoryId(request.getCategoryId())
+                .warehouseId(request.getWarehouseId())
+                .supplierId(request.getSupplierId())
+                .createdAt(request.getCreatedAt())
+                .updatedAt(request.getUpdatedAt())
+                .build();
+    }
+
 }

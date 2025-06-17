@@ -11,7 +11,7 @@ spring:
       region:
         static: ap-southeast-1
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
+    change-log: classpath:/migration/db.changelog-master.yaml
     enabled: true
     default-schema: product_liquibase
 aws:

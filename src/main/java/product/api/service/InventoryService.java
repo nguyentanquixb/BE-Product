@@ -5,11 +5,14 @@ import product.api.entity.Product;
 import product.api.entity.ProductStatusEnum;
 import product.api.repository.ProductRepository;
 import product.api.response.ProductResponse;
+import product.api.utils.Constants;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class InventoryService {
+
 
     private final ProductRepository productRepository;
 
@@ -19,8 +22,8 @@ public class InventoryService {
 
     public List<ProductResponse> getProductsByWarehouse(Long warehouseId, String status) {
         List<Product> products;
-        if ("active".equalsIgnoreCase(status)) {
-            products = productRepository.findByWarehouseIdAndStatus(warehouseId, ProductStatusEnum.valueOf("ACTIVE"));
+        if (Constants.ACTIVE.equalsIgnoreCase(status)) {
+            products = productRepository.findByWarehouseIdAndStatus(warehouseId, ProductStatusEnum.ACTIVE);
         } else {
             products = productRepository.findByWarehouseId(warehouseId);
         }

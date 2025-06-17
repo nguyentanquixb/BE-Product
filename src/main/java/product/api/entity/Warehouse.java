@@ -26,9 +26,9 @@ public class Warehouse {
     @Column(nullable = false)
     private int capacity;
 
-    @Column(updatable = false, nullable = false)
+    @Column(name = "created_at",updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at",nullable = false)
     private LocalDateTime updatedAt;
 }

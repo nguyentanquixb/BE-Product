@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import product.api.dto.SalesOrderRequest;
 import product.api.response.Response;
-import product.api.response.SalesOrderResponse;
 import product.api.service.SalesOrderService;
+import product.api.utils.ResponseUtil;
 
 @RestController
 @RequestMapping("/sales-orders")
@@ -19,8 +19,8 @@ public class SalesOrderController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createSalesOrder(@RequestBody SalesOrderRequest request) {
+    public ResponseEntity<Response> createSalesOrder(@RequestBody SalesOrderRequest request) {
         salesOrderService.createSalesOrder(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("SalesOrder created");
+        return ResponseUtil.buildResponse(HttpStatus.CREATED, request);
     }
 }

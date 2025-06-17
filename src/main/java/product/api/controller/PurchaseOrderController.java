@@ -10,6 +10,7 @@ import product.api.dto.PurchaseOrderRequest;
 import product.api.response.PurchaseOrderResponse;
 import product.api.response.Response;
 import product.api.service.PurchaseOrderService;
+import product.api.utils.ResponseUtil;
 
 @RestController
 @RequestMapping("/purchase-orders")
@@ -24,7 +25,7 @@ public class PurchaseOrderController {
     @PostMapping
     public ResponseEntity<Response> createPurchaseOrder(@RequestBody PurchaseOrderRequest request) {
         PurchaseOrderResponse purchaseOrderResponse = purchaseOrderService.createPurchaseOrder(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(purchaseOrderResponse));
+        return ResponseUtil.buildResponse(HttpStatus.CREATED, purchaseOrderResponse);
     }
 }
 

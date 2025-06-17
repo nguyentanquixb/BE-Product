@@ -16,7 +16,7 @@ import product.api.response.Response;
 import product.api.service.ProductService;
 import product.api.service.S3Service;
 import product.api.utils.ExcelHelper;
-import product.api.utils.ResponseError;
+import product.api.utils.ResponseUtil;
 import product.api.validate.ProductValidate;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,9 +25,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-
 @RestController
 @RequestMapping("/product")
+@CrossOrigin
 public class ProductController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
@@ -46,16 +46,9 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> getProductById(@PathVariable("id") Long id) {
-        Optional<Product> optionalProduct = productService.getProductById(id);
-        if (optionalProduct.isPresent()) {
-            Product product = optionalProduct.get();
-
-            ProductResponse productResponse = ProductResponse.convertProduct(product);
-            return ResponseEntity.ok(Response.ok(productResponse));
-        } else {
-            return ResponseError.errorResponse("Product Not Found");
-        }
-
+        Product product = productService.findById(id);
+        ProductResponse productResponse = ProductResponse.convertProduct(product);
+        return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
     }
 
     @GetMapping()
@@ -63,7 +56,7 @@ public class ProductController {
         List<Product> products = productService.getAllProduct();
 
         List<ProductResponse> productResponse = products.stream().map(ProductResponse::convertProduct).toList();
-        return ResponseEntity.ok(Response.ok(productResponse));
+        return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
     }
 
     @PostMapping("/create-product")
@@ -72,7 +65,7 @@ public class ProductController {
 
        List<String> errors = productValidate.validateProduct(request);
        if(!errors.isEmpty()){
-           return ResponseError.errorResponse(errors);
+           return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, errors);
        }
 
        Product savedProduct = productService.createProduct(request);
@@ -98,8 +91,7 @@ public class ProductController {
 
             if (file.isEmpty()) {
                 s3Service.uploadFile(tempFile, "error", "empty-file-" + timestamp + "-" + fileName);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Response.error(List.of("File is empty or not provided")));
+                return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "empty-file-" + timestamp + "-" + fileName);
             }
 
             List<ProductRequest> productRequests;
@@ -107,8 +99,7 @@ public class ProductController {
                 productRequests = ExcelHelper.excelToProductList(Files.newInputStream(tempFile));
             } catch (Exception e) {
                 s3Service.uploadFile(tempFile, "error", "invalid-excel-" + timestamp + "-" + fileName);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Response.error(List.of("Error reading Excel file: " + e.getMessage())));
+                return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "invalid-excel-" + timestamp + "-" + fileName);
             }
 
             List<String> errors = new ArrayList<>();
@@ -118,19 +109,17 @@ public class ProductController {
 
             if (!errors.isEmpty()) {
                 s3Service.uploadFile(tempFile, "error", "validation-failed-" + timestamp + "-" + fileName);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Response.error(errors));
+                return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "validation-failed-" + timestamp + "-" + fileName);
             }
 
             s3Service.uploadFile(tempFile, "success", "success-" + timestamp + "-" + fileName);
-            logger.info("Successfully processed and uploaded file to S3: success/{}", "success-" + timestamp + "-" + fileName);
+            logger.info("Successfully processed and uploaded file to S3: success{}", "success-" + timestamp + "-" + fileName);
             List<ProductResponse> savedProducts = productService.createProducts(productRequests);
-            return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(savedProducts));
+            return ResponseUtil.buildResponse(HttpStatus.OK, savedProducts);
 
         } catch (IOException e) {
             logger.error("Failed to upload file to S3: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Response.error(List.of("Failed to upload file to S3: " + e.getMessage())));
+            return ResponseUtil.buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         } finally {
             if (tempFile != null) {
                 try {
@@ -148,13 +137,13 @@ public class ProductController {
 
         List<String> errors = productValidate.validateProduct(request);
         if(!errors.isEmpty()){
-            return ResponseError.errorResponse(errors);
+            return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, errors);
         }
 
         Product updatedProduct = productService.updateProduct(request);
         ProductResponse productResponse = ProductResponse.convertProduct(updatedProduct);
 
-        return ResponseEntity.status(HttpStatus.OK).body(Response.ok(productResponse));
+        return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
     }
 
 
@@ -165,10 +154,10 @@ public class ProductController {
 
         if (product.isPresent()) {
             productService.deleteProduct(id);
-            return ResponseEntity.status(HttpStatus.OK).body(Response.ok("Product deleted successfully"));
+            return ResponseUtil.buildResponse(HttpStatus.OK, product);
 
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("Product not found"));
+            return ResponseUtil.buildResponse(HttpStatus.NOT_FOUND, "Product not found");
         }
     }
 
@@ -179,21 +168,21 @@ public class ProductController {
     ) {
         Page<Product> products = productService.getProductByPage(PageRequest.of(page, size));
         List<ProductResponse> productResponses = products.getContent().stream().map(ProductResponse::convertProduct).toList();
-        return ResponseEntity.ok(Response.ok(productResponses));
+        return ResponseUtil.buildResponse(HttpStatus.OK, productResponses);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Response> searchProduct(@RequestParam String keyword) {
         List<Product> products = productService.searchProductByName(keyword);
         List<ProductResponse> productResponses = products.stream().map(ProductResponse::convertProduct).toList();
-        return ResponseEntity.ok(Response.ok(productResponses));
+        return ResponseUtil.buildResponse(HttpStatus.OK, productResponses);
     }
 
     @DeleteMapping("/delete-list")
     @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<Response> deleteProducts(@RequestBody List<Long> productIds) {
         if (productIds == null || productIds.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Product list is empty"));
+            return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "productIds is empty");
         }
 
         List<Long> notIds = new ArrayList<>();
@@ -209,9 +198,9 @@ public class ProductController {
         }
 
         if (notIds.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.OK).body(Response.ok("All product deleted successfully"));
+            return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "productIds is empty");
         } else {
-            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(Response.error("Some products not found"));
+            return ResponseUtil.buildResponse(HttpStatus.OK, notIds);
         }
     }
 
@@ -219,7 +208,7 @@ public class ProductController {
     @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
     public ResponseEntity<Response> updateProducts(@RequestBody List<ProductRequest> requests) {
         if (requests == null || requests.isEmpty()) {
-            return ResponseError.errorResponse("Product list is empty");
+            return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "requests is empty");
         }
 
         Set<String> processedProductCodes = new HashSet<>();
@@ -231,7 +220,7 @@ public class ProductController {
             }
             List<String> errors = productValidate.validateProduct(request);
             if (!errors.isEmpty()) {
-                return ResponseError.errorResponse(errors);
+                return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, errors);
             }
 
             Product updatedProduct = productService.updateProduct(request);
@@ -240,17 +229,20 @@ public class ProductController {
             processedProductCodes.add(request.getProductCode());
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(Response.ok(updatedProducts));
+        return ResponseUtil.buildResponse(HttpStatus.OK, updatedProducts);
     }
 
-    @GetMapping("/searchProducts")
-    public ResponseEntity<List<ProductRequest>> searchProducts(
+    @GetMapping("/search-products")
+    public ResponseEntity<Response> searchProducts(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) Long category_id,
+            @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Long warehouse_id) {
 
-        List<ProductRequest> products = productService.searchProducts(search, category_id, warehouse_id);
-        return ResponseEntity.ok(products);
+        List<ProductRequest> products = productService.searchProducts(search, categoryId, warehouse_id);
+        List<ProductResponse> productResponses = products.stream()
+                .map(ProductResponse::convertFromRequest)
+                .toList();
+        return ResponseUtil.buildResponse(HttpStatus.OK, productResponses);
     }
 
 
