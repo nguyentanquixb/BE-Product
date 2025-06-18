@@ -70,7 +70,7 @@ public class ProductController {
 
        Product savedProduct = productService.createProduct(request);
        ProductResponse productResponse = ProductResponse.convertProduct(savedProduct);
-       return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(productResponse));
+       return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
     }
 
     @PostMapping("/create-product-excel")
@@ -90,7 +90,7 @@ public class ProductController {
             file.transferTo(tempFile.toFile());
 
             if (file.isEmpty()) {
-                s3Service.uploadFile(tempFile, "error", "empty-file-" + timestamp + "-" + fileName);
+                s3Service.uploadFile(tempFile, " Constants.S3_FOLDER_ERROR", "empty-file-" + timestamp + "-" + fileName);
                 return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "empty-file-" + timestamp + "-" + fileName);
             }
 
@@ -98,7 +98,7 @@ public class ProductController {
             try {
                 productRequests = ExcelHelper.excelToProductList(Files.newInputStream(tempFile));
             } catch (Exception e) {
-                s3Service.uploadFile(tempFile, "error", "invalid-excel-" + timestamp + "-" + fileName);
+                s3Service.uploadFile(tempFile, " Constants.S3_FOLDER_ERROR", "invalid-excel-" + timestamp + "-" + fileName);
                 return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "invalid-excel-" + timestamp + "-" + fileName);
             }
 
@@ -108,11 +108,11 @@ public class ProductController {
             }
 
             if (!errors.isEmpty()) {
-                s3Service.uploadFile(tempFile, "error", "validation-failed-" + timestamp + "-" + fileName);
+                s3Service.uploadFile(tempFile, " Constants.S3_FOLDER_ERROR", "validation-failed-" + timestamp + "-" + fileName);
                 return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "validation-failed-" + timestamp + "-" + fileName);
             }
 
-            s3Service.uploadFile(tempFile, "success", "success-" + timestamp + "-" + fileName);
+            s3Service.uploadFile(tempFile, "Constants.S3_FOLDER_SUCCESS", "success-" + timestamp + "-" + fileName);
             logger.info("Successfully processed and uploaded file to S3: success{}", "success-" + timestamp + "-" + fileName);
             List<ProductResponse> savedProducts = productService.createProducts(productRequests);
             return ResponseUtil.buildResponse(HttpStatus.OK, savedProducts);
@@ -151,14 +151,8 @@ public class ProductController {
     @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<Response> deleteProduct(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);
-
-        if (product.isPresent()) {
-            productService.deleteProduct(id);
-            return ResponseUtil.buildResponse(HttpStatus.OK, product);
-
-        } else {
-            return ResponseUtil.buildResponse(HttpStatus.NOT_FOUND, "Product not found");
-        }
+        productService.deleteProduct(id);
+        return ResponseUtil.buildResponse(HttpStatus.OK, product);
     }
 
     @GetMapping("/page")

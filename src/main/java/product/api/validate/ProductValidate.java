@@ -65,7 +65,7 @@ public class ProductValidate {
             errors.add("Supplier ID is invalid");
         }
         try {
-            ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase());
+            ProductStatusEnum.valueOf(String.valueOf(request.getStatus()));
         } catch (IllegalArgumentException e) {
             errors.add("Invalid status. Allowed values: ACTIVE, INACTIVE");
         }
@@ -99,7 +99,7 @@ public class ProductValidate {
         }
 
         try {
-            ProductStatusEnum.valueOf(request.getStatus().trim().toUpperCase());
+            ProductStatusEnum.valueOf(String.valueOf(request.getStatus()));
         } catch (IllegalArgumentException e) {
             errors.add("Row " + (rowIndex) + ": Invalid product status '" + request.getStatus() + "'");
         }

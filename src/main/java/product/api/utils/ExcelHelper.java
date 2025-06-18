@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import product.api.entity.ProductStatusEnum;
 
 
 public class ExcelHelper {
@@ -32,7 +33,8 @@ public class ExcelHelper {
             product.setPrice(BigDecimal.valueOf(row.getCell(3).getNumericCellValue()));
             product.setQuantity((int) row.getCell(4).getNumericCellValue());
             product.setUnit(row.getCell(5).getStringCellValue());
-            product.setStatus(row.getCell(6).getStringCellValue());
+            product.setStatus(ProductStatusEnum.valueOf(row.getCell(6).getStringCellValue()));
+            product.setStatus(ProductStatusEnum.valueOf(row.getCell(6).getStringCellValue()));
             product.setCreatedAt(LocalDateTime.now());
             product.setBarcode(row.getCell(7).getStringCellValue());
             product.setMinStock((int) row.getCell(8).getNumericCellValue());
