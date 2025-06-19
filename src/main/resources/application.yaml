@@ -2,9 +2,12 @@ server:
   port: 8081
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: 123456
+    #    url: jdbc:postgresql://localhost:5432/postgres
+    #    username: postgres
+    #    password: 123456
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -21,6 +24,7 @@ aws:
   s3:
     bucket: managementproduct
 
-logging:
-  level:
-    com.example.demo: INFO
+#logging:
+#  level:
+#    com.example.demo: INFO
+#    schemaName: product_liquibase
