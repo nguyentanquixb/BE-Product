@@ -41,9 +41,11 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             Claims claims = jwtUtil.extractClaims(token);
+            logger.info("Extracted Claims: {}", claims);
             String username = claims.getSubject();
 
             Object permissionsObject = claims.get("permissions");
+
             List<String> permissionList = new ArrayList<>();
 
             if (permissionsObject instanceof List<?>) {

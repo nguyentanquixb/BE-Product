@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: product
-            schemaName: product_liquibase
+            schemaName: public
             columns:
               - column:
                   name: product_id
@@ -81,21 +81,21 @@ databaseChangeLog:
             constraintName: fk_product_category
             referencedTableName: category
             referencedColumnNames: category_id
-            baseTableSchemaName: product_liquibase
-            referencedTableSchemaName: product_liquibase
+            baseTableSchemaName: public
+            referencedTableSchemaName: public
         - addForeignKeyConstraint:
             baseTableName: product
             baseColumnNames: warehouse_id
             constraintName: fk_product_warehouse
             referencedTableName: warehouse
             referencedColumnNames: warehouse_id
-            baseTableSchemaName: product_liquibase
-            referencedTableSchemaName: product_liquibase
+            baseTableSchemaName: public
+            referencedTableSchemaName: public
         - addForeignKeyConstraint:
             baseTableName: product
             baseColumnNames: supplier_id
             constraintName: fk_product_supplier
             referencedTableName: supplier
             referencedColumnNames: supplier_id
-            baseTableSchemaName: product_liquibase
-            referencedTableSchemaName: product_liquibase
+            baseTableSchemaName: public
+            referencedTableSchemaName: public

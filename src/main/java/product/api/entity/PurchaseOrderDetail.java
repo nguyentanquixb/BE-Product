@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @Setter
-@Table(name = "purchase_order_detail", schema = "product_liquibase")
+@Table(name = "purchase_order_detail", schema = "public")
 public class PurchaseOrderDetail {
 
     @Id

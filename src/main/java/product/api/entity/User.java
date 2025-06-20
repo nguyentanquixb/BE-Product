@@ -15,7 +15,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Table(name = "users", schema = "product_liquibase")
+@Table(name = "users", schema = "public")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -45,19 +45,18 @@ public class  User {
     private Timestamp updatedAt;
 
     @ManyToMany
-    @JoinTable(name = "user_permissions",
-            schema = "product_liquibase",
+    @JoinTable(
+            name = "user_roles",
+            schema = "public",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    @JsonIgnore
-    private Set<Permission> permissions;
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles;
 
-//    @ManyToMany
-//    @JoinTable(name = "user_roles",
-//            schema = "product_liquibase",
-//            joinColumns = @JoinColumn(name = "user_id"),
-//            inverseJoinColumns = @JoinColumn(name = "role_id"))
-//    @JsonIgnore
-//    private Set<Role> roles;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Customer customer;
+
+
+
 
 }

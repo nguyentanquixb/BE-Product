@@ -10,7 +10,6 @@ import product.api.response.PurchaseOrderResponse;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PurchaseOrderService {
@@ -23,18 +22,6 @@ public class PurchaseOrderService {
     public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository,SupplierService  supplierService) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.supplierService = supplierService;
-    }
-
-    public Optional<PurchaseOrder> getPurchaseOrderById(Long id) {
-        return purchaseOrderRepository.findById(id);
-    }
-
-    public List<PurchaseOrder> getAllPurchaseOrders() {
-        return purchaseOrderRepository.findAll();
-    }
-
-    public void deletePurchaseOrder(Long id) {
-        purchaseOrderRepository.deleteById(id);
     }
 
     public PurchaseOrderResponse createPurchaseOrder(PurchaseOrderRequest request) {

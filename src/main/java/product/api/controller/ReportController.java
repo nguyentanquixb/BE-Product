@@ -2,6 +2,7 @@ package product.api.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,12 +27,14 @@ public class ReportController {
     }
 
     @GetMapping("/inventory")
+    @PreAuthorize("hasAuthority('VIEW_INVENTORY_REPORT')")
     public ResponseEntity<Response> getInventoryReport() {
         List<InventoryReportDTO> report = reportService.getInventoryReport();
         return ResponseUtil.buildResponse(HttpStatus.OK, report);
     }
 
     @GetMapping("/transactions")
+    @PreAuthorize("hasAuthority('VIEW_TRANSACTION_REPORT')")
     public ResponseEntity<Response> getTransactionReport(
             @RequestParam LocalDate dateFrom,
             @RequestParam LocalDate dateTo) {

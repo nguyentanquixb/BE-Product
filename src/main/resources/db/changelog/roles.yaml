@@ -1,14 +1,14 @@
 databaseChangeLog:
   - changeSet:
-      id: category-1
+      id: role-1
       author: BE PRODUCT
       changes:
         - createTable:
-            tableName: category
+            tableName: roles
             schemaName: public
             columns:
               - column:
-                  name: category_id
+                  name: id
                   type: BIGINT
                   autoIncrement: true
                   constraints:
@@ -18,16 +18,7 @@ databaseChangeLog:
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
+                    unique: true
               - column:
                   name: description
-                  type: TEXT
-              - column:
-                  name: created_at
-                  type: TIMESTAMP
-                  constraints:
-                    nullable: false
-              - column:
-                  name: updated_at
-                  type: TIMESTAMP
-                  constraints:
-                    nullable: false
+                  type: VARCHAR(255)

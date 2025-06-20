@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: purchase_order
-            schemaName: product_liquibase
+            schemaName: public
             columns:
               - column:
                   name: purchase_order_id
@@ -45,5 +45,5 @@ databaseChangeLog:
             constraintName: fk_purchase_order_supplier
             referencedTableName: supplier
             referencedColumnNames: supplier_id
-            baseTableSchemaName: product_liquibase
-            referencedTableSchemaName: product_liquibase
+            baseTableSchemaName: public
+            referencedTableSchemaName: public

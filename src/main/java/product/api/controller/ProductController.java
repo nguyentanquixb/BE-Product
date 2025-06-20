@@ -59,7 +59,7 @@ public class ProductController {
         return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
     }
 
-    @PostMapping("/create-product")
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<Response> createProduct(@RequestBody ProductRequest request) {
 
@@ -73,7 +73,7 @@ public class ProductController {
        return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
     }
 
-    @PostMapping("/create-product-excel")
+    @PostMapping("/create-excel")
     @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<Response> createProductExcel(@RequestParam("file") MultipartFile file) {
 
@@ -131,7 +131,7 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/update-product/{id}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
     public ResponseEntity<Response> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
 
@@ -147,7 +147,7 @@ public class ProductController {
     }
 
 
-    @DeleteMapping("delete-product/{id}")
+    @DeleteMapping("delete/{id}")
     @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<Response> deleteProduct(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);

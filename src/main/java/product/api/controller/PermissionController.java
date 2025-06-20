@@ -26,11 +26,11 @@ public class PermissionController {
         this.permissionService = permissionService;
     }
 
-    @PostMapping("/list-permission")
+    @PostMapping("/list")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response> crPermission(@RequestBody List<PermissionRequest> permissionRequests) {
+    public ResponseEntity<Response> CreatePermission(@RequestBody List<PermissionRequest> permissionRequests) {
         if (permissionRequests == null || permissionRequests.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.error("Permission list is empty"));
+            return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, "Permission Request is Empty");
         }
 
         Set<String> existingPermissionNames = permissionService.getAllPermissionNames();

@@ -2,14 +2,14 @@ server:
   port: 8081
 spring:
   datasource:
-#        url: jdbc:postgresql://localhost:5432/postgres
-#        username: postgres
-#        password: 123456
-#        driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://localhost:5432/postgres
+        username: postgres
+        password: 123456
+        driver-class-name: org.postgresql.Driver
+#    url: ${SPRING_DATASOURCE_URL}
+#    username: ${SPRING_DATASOURCE_USERNAME}
+#    password: ${SPRING_DATASOURCE_PASSWORD}
+#    driver-class-name: org.postgresql.Driver
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -20,7 +20,7 @@ spring:
   liquibase:
     change-log: classpath:/migration/db.changelog-master.yaml
     enabled: true
-    default-schema: product_liquibase
+    default-schema: public
 aws:
   region: ap-southeast-1
   s3:

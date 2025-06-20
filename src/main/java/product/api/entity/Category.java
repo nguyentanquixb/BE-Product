@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "category", schema = "product_liquibase")
+@Table(name = "category", schema = "public")
 public class Category {
 
     @Id
@@ -27,4 +27,5 @@ public class Category {
 
     @Column(name = "updated_at",nullable = false)
     private LocalDateTime updatedAt;
+
 }

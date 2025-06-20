@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "customer", schema = "product_liquibase")
+@Table(name = "customer", schema = "public")
 public class Customer {
 
     @Id
@@ -32,4 +32,9 @@ public class Customer {
 
     @Column(name = "updated_at", updatable = false)
     private LocalDateTime updatedAt;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
+
 }

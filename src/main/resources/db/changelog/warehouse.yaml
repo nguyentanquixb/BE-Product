@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: warehouse
-            schemaName: product_liquibase
+            schemaName: public
             columns:
               - column:
                   name: warehouse_id

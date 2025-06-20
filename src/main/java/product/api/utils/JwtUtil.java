@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import product.api.entity.Permission;
+import product.api.entity.Role;
 import product.api.entity.User;
 import product.api.repository.UserRepository;
 import product.api.response.JwtTokenResponse;
@@ -14,6 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -48,13 +51,16 @@ public class JwtUtil {
             throw new RuntimeException("User not found");
         }
 
-        List<String> permissions = user.getPermissions().stream()
+        List<String> allPermissions = new java.util.ArrayList<>(user.getRoles().stream()
+                .flatMap(role -> role.getPermissions().stream())
                 .map(Permission::getName)
-                .collect(toList());
+                .distinct()
+                .toList());
+        allPermissions.add(user.getRoles().stream().map(Role::getName).collect(Collectors.joining(",")));
 
         String token = Jwts.builder()
                 .setSubject(userDetails.getUsername())
-                .claim("permissions", permissions)
+                .claim("permissions", allPermissions)
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(getSigningKey())

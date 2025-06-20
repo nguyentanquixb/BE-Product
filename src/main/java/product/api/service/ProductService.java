@@ -65,10 +65,6 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Optional<Product> findProductByProductCode(String productCode){
-        return productRepository.findByProductCode(productCode);
-    }
-
     public boolean isProductCodeDuplicate(String productCode) {
         return productRepository.existsProductByProductCode(productCode);
     }

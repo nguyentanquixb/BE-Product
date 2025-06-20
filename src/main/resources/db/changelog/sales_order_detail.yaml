@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: sales_order_detail
-            schemaName: product_liquibase
+            schemaName: public
             columns:
               - column:
                   name: sales_order_detail
@@ -44,13 +44,13 @@ databaseChangeLog:
             constraintName: fk_sales_order_detail_order
             referencedTableName: sales_order
             referencedColumnNames: sales_order_id
-            baseTableSchemaName: product_liquibase
-            referencedTableSchemaName: product_liquibase
+            baseTableSchemaName: public
+            referencedTableSchemaName: public
         - addForeignKeyConstraint:
             baseTableName: sales_order_detail
             baseColumnNames: product_id
             constraintName: fk_sales_order_detail_product
             referencedTableName: product
             referencedColumnNames: product_id
-            baseTableSchemaName: product_liquibase
-            referencedTableSchemaName: product_liquibase
+            baseTableSchemaName: public
+            referencedTableSchemaName: public

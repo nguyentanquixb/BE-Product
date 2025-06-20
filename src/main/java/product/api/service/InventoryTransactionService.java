@@ -11,10 +11,7 @@ import product.api.exception.NotFoundException;
 import product.api.repository.InventoryTransactionRepository;
 import product.api.repository.ProductRepository;
 import product.api.response.InventoryTransactionResponse;
-
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InventoryTransactionService {
@@ -35,21 +32,6 @@ public class InventoryTransactionService {
         this.productRepository = productRepository;
     }
 
-    public Optional<InventoryTransaction> getTransactionById(Long id) {
-        return inventoryTransactionRepository.findById(id);
-    }
-
-    public List<InventoryTransaction> getAllTransactions() {
-        return inventoryTransactionRepository.findAll();
-    }
-
-    public InventoryTransaction createTransaction(InventoryTransaction transaction) {
-        return inventoryTransactionRepository.save(transaction);
-    }
-
-    public void deleteTransaction(Long id) {
-        inventoryTransactionRepository.deleteById(id);
-    }
 
     public InventoryTransactionResponse recordTransaction(InventoryTransactionRequest request) {
         Product product = productService.getProductById(request.getProductId())

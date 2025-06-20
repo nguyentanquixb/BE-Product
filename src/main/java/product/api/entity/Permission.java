@@ -1,5 +1,6 @@
 package product.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "permissions", schema = "product_liquibase")
+@Table(name = "permissions", schema = "public")
 public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +33,7 @@ public class Permission {
     private LocalDateTime updatedAt;
 
     @ManyToMany(mappedBy = "permissions")
-    private Set<User> users;
+    @JsonIgnore
+    private Set<Role> roles;
+
 }

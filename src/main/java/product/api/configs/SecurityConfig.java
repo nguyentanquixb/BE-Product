@@ -48,6 +48,7 @@ public class SecurityConfig {
                                 "/product/test-credentials",
                                 "/stock-adjustments",
                                 "/users/create-user",
+//                                "/users/role",
                                 "/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )

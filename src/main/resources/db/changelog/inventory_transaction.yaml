@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: inventory_transaction
-            schemaName: product_liquibase
+            schemaName: public
             columns:
               - column:
                   name: transaction_id
@@ -51,13 +51,13 @@ databaseChangeLog:
             constraintName: fk_inventory_transaction_product
             referencedTableName: product
             referencedColumnNames: product_id
-            baseTableSchemaName: product_liquibase
-            referencedTableSchemaName: product_liquibase
+            baseTableSchemaName: public
+            referencedTableSchemaName: public
         - addForeignKeyConstraint:
             baseTableName: inventory_transaction
             baseColumnNames: warehouse_id
             constraintName: fk_inventory_transaction_warehouse
             referencedTableName: warehouse
             referencedColumnNames: warehouse_id
-            baseTableSchemaName: product_liquibase
-            referencedTableSchemaName: product_liquibase
+            baseTableSchemaName: public
+            referencedTableSchemaName: public

@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: users
-            schemaName: product_liquibase
+            schemaName: public
             columns:
               - column:
                   name: id
@@ -21,5 +21,22 @@ databaseChangeLog:
               - column:
                   name: email
                   type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
