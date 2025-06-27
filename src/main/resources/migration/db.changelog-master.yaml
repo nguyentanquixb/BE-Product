@@ -33,3 +33,7 @@ databaseChangeLog:
       file: db/changelog/ add-user-id-to-customer.yaml
   - include:
       file: db/changelog/user_roles.yaml
+  - include:
+      file: db/changelog/init-default-roles.yaml
+  - include:
+      file: db/changelog/seed-data.yaml

@@ -1,0 +1,126 @@
+databaseChangeLog:
+  - changeSet:
+      id: seed-categories
+      author: sangnt
+      changes:
+        - insert:
+            tableName: category
+            columns:
+              - column: { name: name, value: "Điện tử" }
+              - column: { name: description, value: "Sản phẩm công nghệ như laptop, điện thoại" }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+        - insert:
+            tableName: category
+            columns:
+              - column: { name: name, value: "Thực phẩm" }
+              - column: { name: description, value: "Các loại thực phẩm, đồ uống" }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+        - insert:
+            tableName: category
+            columns:
+              - column: { name: name, value: "Thời trang" }
+              - column: { name: description, value: "Quần áo, phụ kiện thời trang" }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+  - changeSet:
+      id: seed-warehouses
+      author: sangnt
+      changes:
+        - insert:
+            tableName: warehouse
+            columns:
+              - column: { name: name, value: "Kho Hà Nội" }
+              - column: { name: location, value: "Hà Nội, Việt Nam" }
+              - column: { name: capacity, valueNumeric: 5000 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+        - insert:
+            tableName: warehouse
+            columns:
+              - column: { name: name, value: "Kho TP.HCM" }
+              - column: { name: location, value: "TP. Hồ Chí Minh, Việt Nam" }
+              - column: { name: capacity, valueNumeric: 3000 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+  - changeSet:
+      id: seed-suppliers
+      author: sangnt
+      changes:
+        - insert:
+            tableName: supplier
+            columns:
+              - column: { name: name, value: "Công ty A" }
+              - column: { name: contact_info, value: "contactA@example.com - 0123456789" }
+              - column: { name: address, value: "Hà Nội, Việt Nam" }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+        - insert:
+            tableName: supplier
+            columns:
+              - column: { name: name, value: "Công ty B" }
+              - column: { name: contact_info, value: "contactB@example.com - 0987654321" }
+              - column: { name: address, value: "TP.HCM, Việt Nam" }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+  - changeSet:
+      id: seed-products
+      author: sangnt
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column: { name: product_code, value: "P001" }
+              - column: { name: name, value: "Laptop Dell XPS 13" }
+              - column: { name: description, value: "Laptop hiệu suất cao" }
+              - column: { name: price, valueNumeric: 15000000.00 }
+              - column: { name: quantity, valueNumeric: 10 }
+              - column: { name: min_stock, valueNumeric: 2 }
+              - column: { name: unit, value: "Cái" }
+              - column: { name: barcode, value: "123456789012" }
+              - column: { name: status, value: "ACTIVE" }
+              - column: { name: category_id, valueNumeric: 1 }
+              - column: { name: warehouse_id, valueNumeric: 1 }
+              - column: { name: supplier_id, valueNumeric: 1 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: product
+            columns:
+              - column: { name: product_code, value: "P002" }
+              - column: { name: name, value: "iPhone 14" }
+              - column: { name: description, value: "Điện thoại Apple" }
+              - column: { name: price, valueNumeric: 25000000.00 }
+              - column: { name: quantity, valueNumeric: 5 }
+              - column: { name: min_stock, valueNumeric: 1 }
+              - column: { name: unit, value: "Cái" }
+              - column: { name: barcode, value: "987654321098" }
+              - column: { name: status, value: "ACTIVE" }
+              - column: { name: category_id, valueNumeric: 1 }
+              - column: { name: warehouse_id, valueNumeric: 1 }
+              - column: { name: supplier_id, valueNumeric: 2 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
+
+        - insert:
+            tableName: product
+            columns:
+              - column: { name: product_code, value: "P003" }
+              - column: { name: name, value: "Áo khoác Adidas" }
+              - column: { name: description, value: "Trang phục thể thao" }
+              - column: { name: price, valueNumeric: 1200000.00 }
+              - column: { name: quantity, valueNumeric: 20 }
+              - column: { name: min_stock, valueNumeric: 5 }
+              - column: { name: unit, value: "Cái" }
+              - column: { name: barcode, value: null }
+              - column: { name: status, value: "ACTIVE" }
+              - column: { name: category_id, valueNumeric: 3 }
+              - column: { name: warehouse_id, valueNumeric: 2 }
+              - column: { name: supplier_id, valueNumeric: 2 }
+              - column: { name: created_at, valueComputed: CURRENT_TIMESTAMP }
+              - column: { name: updated_at, valueComputed: CURRENT_TIMESTAMP }
