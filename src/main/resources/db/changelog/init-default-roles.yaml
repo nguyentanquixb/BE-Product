@@ -1,0 +1,134 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-default-permissions
+      author: sang
+      changes:
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "VIEW_INVENTORY" }
+              - column: { name: description, value: "View inventory" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "VIEW_LOW_STOCK" }
+              - column: { name: description, value: "View low stock items" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "VIEW_WAREHOUSE" }
+              - column: { name: description, value: "View warehouses" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "CREATE_WAREHOUSE" }
+              - column: { name: description, value: "Create warehouse" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "UPDATE_WAREHOUSE" }
+              - column: { name: description, value: "Update warehouse" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "DELETE_WAREHOUSE" }
+              - column: { name: description, value: "Delete warehouse" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "VIEW_SUPPLIER" }
+              - column: { name: description, value: "View supplier" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "CREATE_SUPPLIER" }
+              - column: { name: description, value: "Create supplier" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "UPDATE_SUPPLIER" }
+              - column: { name: description, value: "Update supplier" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "DELETE_SUPPLIER" }
+              - column: { name: description, value: "Delete supplier" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "CREATE_STOCK_ADJUSTMENT" }
+              - column: { name: description, value: "Create stock adjustment" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "VIEW_STOCK_ADJUSTMENT" }
+              - column: { name: description, value: "View stock adjustment" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "VIEW_INVENTORY_REPORT" }
+              - column: { name: description, value: "View inventory report" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "VIEW_TRANSACTION_REPORT" }
+              - column: { name: description, value: "View transaction report" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "CREATE_PRODUCT" }
+              - column: { name: description, value: "Create product" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "UPDATE_PRODUCT" }
+              - column: { name: description, value: "Update product" }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: name, value: "DELETE_PRODUCT" }
+              - column: { name: description, value: "Delete product" }
+
+  - changeSet:
+      id: insert-admin-role
+      author: sang
+      changes:
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: name, value: "ADMIN" }
+              - column: { name: description, value: "Admin role with all permissions" }
+
+  - changeSet:
+      id: assign-all-permissions-to-admin
+      author: sang
+      changes:
+        - sql:
+            comment: "Assign all permissions to ADMIN role"
+            splitStatements: true
+            stripComments: true
+            sql: |
+              INSERT INTO role_permissions(role_id, permission_id)
+              SELECT r.id, p.id
+              FROM roles r, permissions p
+              WHERE r.name = 'ADMIN';
+
+  - changeSet:
+      id: insert-admin-user
+      author: sang
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: full_name, value: "Nguyen tan qui" }
+              - column: { name: email, value: "admin@gmail.com" }
+              - column:
+                  name: password
+                  value: "$2a$10$xUPvW0f9D5nCeZHY0uYkZOKZeq2T68tYYElxn9zYkZUDUjrmJyd9e" # password: admin123
+        - sql:
+            comment: "Assign ADMIN role to the inserted user"
+            sql: |
+              INSERT INTO user_roles(user_id, role_id)
+              SELECT u.id, r.id
+              FROM users u, roles r
+              WHERE u.email = 'admin@example.com' AND r.name = 'ADMIN';
