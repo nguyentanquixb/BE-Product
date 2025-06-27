@@ -9,7 +9,7 @@ import product.api.service.InventoryService;
 import product.api.utils.ResponseUtil;
 
 @RestController
-@RequestMapping()
+@RequestMapping("/inventory")
 public class InventoryController {
 
     private final InventoryService inventoryService;
