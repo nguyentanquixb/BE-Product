@@ -1,5 +1,7 @@
 package product.api.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import product.api.dto.InventoryTransactionRequest;
@@ -11,7 +13,11 @@ import product.api.exception.NotFoundException;
 import product.api.repository.InventoryTransactionRepository;
 import product.api.repository.ProductRepository;
 import product.api.response.InventoryTransactionResponse;
+import product.api.specification.InventoryTransactionSpecification;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class InventoryTransactionService {
@@ -55,4 +61,19 @@ public class InventoryTransactionService {
         InventoryTransaction savedTransaction = inventoryTransactionRepository.save(transaction);
         return InventoryTransactionResponse.convertTransaction(savedTransaction);
     }
+
+    public Page<InventoryTransaction> getTransactions(Long productId, Long warehouseId,LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+        return inventoryTransactionRepository.findAll(
+                InventoryTransactionSpecification.filterByCriteria(productId, warehouseId, fromDate, toDate),
+                pageable
+        );
+    }
+
+    public List<InventoryTransaction> getTransactions(Long productId, Long warehouseId, LocalDate fromDate, LocalDate toDate) {
+        return inventoryTransactionRepository.findAll(
+                InventoryTransactionSpecification.filterByCriteria(productId, warehouseId, fromDate, toDate)
+        );
+    }
+
+
 }
