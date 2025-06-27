@@ -25,6 +25,11 @@ aws:
   region: ap-southeast-1
   s3:
     bucket: managementproduct
+logging:
+  level:
+    org.springframework.boot.autoconfigure.web.servlet.error: off
+    org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration: off
+
 
 #logging:
 #  level:
