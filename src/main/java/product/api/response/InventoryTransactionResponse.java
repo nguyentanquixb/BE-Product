@@ -1,8 +1,13 @@
+
 package product.api.response;
 
 import lombok.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import product.api.entity.InventoryTransaction;
+import product.api.entity.Product;
 import product.api.entity.TransactionTypeEnum;
+import product.api.entity.Warehouse;
 
 import java.time.LocalDateTime;
 
@@ -13,22 +18,27 @@ import java.time.LocalDateTime;
 @Builder
 public class InventoryTransactionResponse {
     private Long id;
-    private Long productId;
+    private Product product;
     private String productName;
-    private Long warehouseId;
+    private Warehouse warehouse;
     private String warehouseLocation;
     private TransactionTypeEnum type;
     private Integer quantity;
     private LocalDateTime transactionDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private TransactionTypeEnum transactionType;
+
+    private static final Logger logger = LoggerFactory.getLogger(InventoryTransactionResponse.class);
 
     public static InventoryTransactionResponse convertTransaction(InventoryTransaction transaction) {
+
+        logger.info("Transaction type: {}", transaction.getType());
         return InventoryTransactionResponse.builder()
                 .id(transaction.getId())
-                .productId(transaction.getProduct().getId())
+                .product(transaction.getProduct())
                 .productName(transaction.getProduct().getName())
-                .warehouseId(transaction.getWarehouse().getId())
+                .warehouse(transaction.getWarehouse())
                 .warehouseLocation(transaction.getWarehouse().getLocation())
                 .type(transaction.getType())
                 .quantity(transaction.getQuantity())
@@ -37,4 +47,6 @@ public class InventoryTransactionResponse {
                 .updatedAt(transaction.getUpdatedAt())
                 .build();
     }
+
 }
+
