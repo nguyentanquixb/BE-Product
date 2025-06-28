@@ -3,31 +3,50 @@ package product.api.specification;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import product.api.entity.Product;
+import product.api.entity.ProductStatusEnum;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProductSpecification {
-    public static Specification<Product> filterByCriteria(String keyword, Long categoryId, Long warehouseId) {
-        return (root, query, criteriaBuilder) -> {
+    public static Specification<Product> filterByCriteria(
+            String nameOrCode,
+            Long categoryId,
+            Long warehouseId,
+            Long supplierId,
+            Boolean lowStockOnly,
+            ProductStatusEnum status
+    ) {
+        return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (keyword != null && !keyword.isEmpty()) {
-                Predicate namePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + keyword.toLowerCase() + "%");
-                Predicate codePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("productCode")), "%" + keyword.toLowerCase() + "%");
-                predicates.add(criteriaBuilder.or(namePredicate, codePredicate));
+            if (nameOrCode != null && !nameOrCode.isEmpty()) {
+                Predicate namePredicate = cb.like(cb.lower(root.get("name")), "%" + nameOrCode.toLowerCase() + "%");
+                Predicate codePredicate = cb.like(cb.lower(root.get("productCode")), "%" + nameOrCode.toLowerCase() + "%");
+                predicates.add(cb.or(namePredicate, codePredicate));
             }
 
             if (categoryId != null) {
-                predicates.add(criteriaBuilder.equal(root.get("categoryId"), categoryId));
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
             }
 
             if (warehouseId != null) {
-                predicates.add(criteriaBuilder.equal(root.get("warehouseId"), warehouseId));
+                predicates.add(cb.equal(root.get("warehouse").get("id"), warehouseId));
             }
 
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            if (supplierId != null) {
+                predicates.add(cb.equal(root.get("supplier").get("id"), supplierId));
+            }
+
+            if (lowStockOnly != null && lowStockOnly) {
+                predicates.add(cb.lessThan(root.get("quantity"), root.get("minStock")));
+            }
+
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
 }
-

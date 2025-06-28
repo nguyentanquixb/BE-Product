@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import product.api.dto.ProductRequest;
 import product.api.entity.Product;
+import product.api.entity.ProductStatusEnum;
 import product.api.response.ProductResponse;
 import product.api.response.Response;
 import product.api.service.ProductService;
@@ -228,11 +229,18 @@ public class ProductController {
 
     @GetMapping("/search-products")
     public ResponseEntity<Response> searchProducts(
-            @RequestParam(required = false) String search,
+            @RequestParam(required = false, name = "nameOrCode") String nameOrCode,
             @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) Long warehouse_id) {
+            @RequestParam(required = false) Long warehouseId,
+            @RequestParam(required = false) Long supplierId,
+            @RequestParam(required = false) Boolean lowStockOnly,
+            @RequestParam(required = false) ProductStatusEnum status
+    ){
 
-        List<ProductRequest> products = productService.searchProducts(search, categoryId, warehouse_id);
+        List<ProductRequest> products = productService.searchProducts(
+                nameOrCode, categoryId, warehouseId, supplierId,
+                lowStockOnly, status
+        );
         List<ProductResponse> productResponses = products.stream()
                 .map(ProductResponse::convertFromRequest)
                 .toList();

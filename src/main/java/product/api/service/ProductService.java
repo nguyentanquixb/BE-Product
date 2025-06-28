@@ -129,8 +129,23 @@ public class ProductService {
         return savedProducts;
     }
 
-    public List<ProductRequest> searchProducts(String keyword, Long categoryId, Long warehouseId) {
-        Specification<Product> spec = ProductSpecification.filterByCriteria(keyword, categoryId, warehouseId);
+    public List<ProductRequest> searchProducts(
+            String nameOrCode,
+            Long categoryId,
+            Long warehouseId,
+            Long supplierId,
+            Boolean lowStockOnly,
+            ProductStatusEnum status
+    ){
+        Specification<Product> spec = ProductSpecification.filterByCriteria(
+                nameOrCode,
+                categoryId,
+                warehouseId,
+                supplierId,
+                lowStockOnly,
+                status
+        );
+
         List<Product> products = productRepository.findAll(spec);
 
         List<ProductRequest> productRequests = new ArrayList<>();
@@ -147,7 +162,7 @@ public class ProductService {
                     .unit(product.getUnit())
                     .barcode(product.getBarcode())
                     .minStock(product.getMinStock())
-                    .status(ProductStatusEnum.valueOf(String.valueOf(product.getStatus())))
+                    .status(product.getStatus())
                     .build();
             productRequests.add(dto);
         }
