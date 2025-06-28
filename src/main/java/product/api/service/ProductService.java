@@ -124,52 +124,31 @@ public class ProductService {
             product.setCategory(categoryService.findCategory(request.getCategoryId()));
             product.setWarehouse(warehouseService.findWarehouse(request.getWarehouseId()));
             product.setSupplier(supplierService.findSupplier(request.getSupplierId()));
-        }
 
+            Product saved = productRepository.save(product);
+            savedProducts.add(ProductResponse.convertProduct(saved));
+        }
         return savedProducts;
     }
 
-    public List<ProductRequest> searchProducts(
+    public Page<Product> searchProducts(
             String nameOrCode,
             Long categoryId,
             Long warehouseId,
             Long supplierId,
-            Boolean lowStockOnly,
-            ProductStatusEnum status
-    ){
+            ProductStatusEnum status,
+            int page,
+            int size
+    ) {
         Specification<Product> spec = ProductSpecification.filterByCriteria(
                 nameOrCode,
                 categoryId,
                 warehouseId,
                 supplierId,
-                lowStockOnly,
                 status
         );
 
-        List<Product> products = productRepository.findAll(spec);
-
-        List<ProductRequest> productRequests = new ArrayList<>();
-        for (Product product : products) {
-            ProductRequest dto = ProductRequest.builder()
-                    .id(product.getId())
-                    .name(product.getName())
-                    .productCode(product.getProductCode())
-                    .categoryId(product.getCategory().getId())
-                    .warehouseId(product.getWarehouse().getId())
-                    .supplierId(product.getSupplier().getId())
-                    .price(product.getPrice())
-                    .quantity(product.getQuantity())
-                    .unit(product.getUnit())
-                    .barcode(product.getBarcode())
-                    .minStock(product.getMinStock())
-                    .status(product.getStatus())
-                    .build();
-            productRequests.add(dto);
-        }
-
-        return productRequests;
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return productRepository.findAll(spec, pageRequest);
     }
-
-
-
 }

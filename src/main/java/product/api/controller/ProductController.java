@@ -39,7 +39,7 @@ public class ProductController {
 
     private final ProductValidate productValidate;
 
-    public ProductController(ProductService productService, S3Service s3Service,ProductValidate productValidate) {
+    public ProductController(ProductService productService, S3Service s3Service, ProductValidate productValidate) {
         this.productService = productService;
         this.s3Service = s3Service;
         this.productValidate = productValidate;
@@ -64,14 +64,14 @@ public class ProductController {
     @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<Response> createProduct(@RequestBody ProductRequest request) {
 
-       List<String> errors = productValidate.validateProduct(request);
-       if(!errors.isEmpty()){
-           return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, errors);
-       }
+        List<String> errors = productValidate.validateProduct(request);
+        if (!errors.isEmpty()) {
+            return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, errors);
+        }
 
-       Product savedProduct = productService.createProduct(request);
-       ProductResponse productResponse = ProductResponse.convertProduct(savedProduct);
-       return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
+        Product savedProduct = productService.createProduct(request);
+        ProductResponse productResponse = ProductResponse.convertProduct(savedProduct);
+        return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
     }
 
     @PostMapping("/create-excel")
@@ -137,7 +137,7 @@ public class ProductController {
     public ResponseEntity<Response> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
 
         List<String> errors = productValidate.validateProduct(request);
-        if(!errors.isEmpty()){
+        if (!errors.isEmpty()) {
             return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, errors);
         }
 
@@ -166,9 +166,9 @@ public class ProductController {
         return ResponseUtil.buildResponse(HttpStatus.OK, productResponses);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Response> searchProduct(@RequestParam String keyword) {
-        List<Product> products = productService.searchProductByName(keyword);
+    @GetMapping("/search-name")
+    public ResponseEntity<Response> searchProduct(@RequestParam String name) {
+        List<Product> products = productService.searchProductByName(name);
         List<ProductResponse> productResponses = products.stream().map(ProductResponse::convertProduct).toList();
         return ResponseUtil.buildResponse(HttpStatus.OK, productResponses);
     }
@@ -227,25 +227,39 @@ public class ProductController {
         return ResponseUtil.buildResponse(HttpStatus.OK, updatedProducts);
     }
 
-    @GetMapping("/search-products")
+    @GetMapping("/search")
     public ResponseEntity<Response> searchProducts(
             @RequestParam(required = false, name = "nameOrCode") String nameOrCode,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Long warehouseId,
             @RequestParam(required = false) Long supplierId,
-            @RequestParam(required = false) Boolean lowStockOnly,
-            @RequestParam(required = false) ProductStatusEnum status
-    ){
-
-        List<ProductRequest> products = productService.searchProducts(
+            @RequestParam(required = false) ProductStatusEnum status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<Product> productPage = productService.searchProducts(
                 nameOrCode, categoryId, warehouseId, supplierId,
-                lowStockOnly, status
+                status, page, size
         );
-        List<ProductResponse> productResponses = products.stream()
-                .map(ProductResponse::convertFromRequest)
+
+        List<ProductResponse> productResponses = productPage.getContent()
+                .stream()
+                .map(ProductResponse::convertProduct)
                 .toList();
-        return ResponseUtil.buildResponse(HttpStatus.OK, productResponses);
+
+        return ResponseUtil.buildResponse(HttpStatus.OK, Map.of(
+                "data", productResponses,
+                "totalElements", productPage.getTotalElements(),
+                "totalPages", productPage.getTotalPages(),
+                "currentPage", productPage.getNumber()
+        ));
+
+
     }
 
-
+    @PostMapping("/batch-create")
+    public ResponseEntity<Response> createProducts(@RequestBody List<ProductRequest> productRequests) {
+        List<ProductResponse> createdProducts = productService.createProducts(productRequests);
+        return ResponseUtil.buildResponse(HttpStatus.CREATED, createdProducts);
+    }
 }

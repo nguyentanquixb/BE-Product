@@ -14,7 +14,6 @@ public class ProductSpecification {
             Long categoryId,
             Long warehouseId,
             Long supplierId,
-            Boolean lowStockOnly,
             ProductStatusEnum status
     ) {
         return (root, query, cb) -> {
@@ -36,10 +35,6 @@ public class ProductSpecification {
 
             if (supplierId != null) {
                 predicates.add(cb.equal(root.get("supplier").get("id"), supplierId));
-            }
-
-            if (lowStockOnly != null && lowStockOnly) {
-                predicates.add(cb.lessThan(root.get("quantity"), root.get("minStock")));
             }
 
             if (status != null) {
