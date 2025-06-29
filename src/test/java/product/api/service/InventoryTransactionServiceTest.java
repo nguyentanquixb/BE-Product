@@ -69,8 +69,8 @@ public class InventoryTransactionServiceTest {
 
         InventoryTransactionResponse response = inventoryTransactionService.recordTransaction(request);
 
-        assertEquals(1L, response.getProductId());
-        assertEquals(1L, response.getWarehouseId());
+        assertEquals(1L, response.getProduct().getId());
+        assertEquals(1L, response.getWarehouse().getId());
         assertEquals(10, response.getQuantity());
         assertEquals(TransactionTypeEnum.IN, response.getType());
     }

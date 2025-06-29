@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import product.api.dto.PurchaseOrderDetailRequest;
 import product.api.dto.PurchaseOrderRequest;
-import product.api.entity.OrderStatusEnum;
-import product.api.entity.PurchaseOrder;
-import product.api.entity.Supplier;
+import product.api.entity.*;
 import product.api.repository.PurchaseOrderRepository;
 import product.api.response.PurchaseOrderResponse;
 
@@ -48,15 +47,28 @@ public class PurchaseOrderServiceTest {
         request.setSupplierId(1L);
         request.setDetails(details);
 
+        Product product = new Product();
+        product.setId(1L);
+
         Supplier supplier = new Supplier();
         supplier.setId(1L);
         supplier.setName("Test Supplier");
+
+        List<PurchaseOrderDetail> detailList = new ArrayList<>();
+        PurchaseOrderDetail detail = new PurchaseOrderDetail();
+        detail.setId(1L);
+        detail.setQuantity(1000);
+        detail.setProduct(product);
+
+        detailList.add(detail);
 
         PurchaseOrder purchaseOrder = new PurchaseOrder();
         purchaseOrder.setId(1L);
         purchaseOrder.setSupplier(supplier);
         purchaseOrder.setStatus(OrderStatusEnum.PENDING);
         purchaseOrder.setTotalAmount(new BigDecimal("1100.00"));
+        purchaseOrder.setDetails(detailList);
+
 
         when(supplierService.findSupplier(1L)).thenReturn(supplier);
         when(purchaseOrderRepository.save(any(PurchaseOrder.class))).thenReturn(purchaseOrder);
