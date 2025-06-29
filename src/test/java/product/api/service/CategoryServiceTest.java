@@ -36,7 +36,7 @@ public class CategoryServiceTest {
     }
 
     @Test
-    public void findCategory_NotFoundTest() {
+    void findCategory_NotFoundTest() {
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.empty());
         NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> categoryService.findCategory(1L));
 
