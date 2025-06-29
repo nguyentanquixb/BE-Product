@@ -21,7 +21,11 @@ jobs:
       - name: SSH and deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_HOST }} << 'EOF'
-            cd ~/my-backend || (git clone https://github.com/nguyentanquixb/BE-Product.git my-backend && cd my-backend)
+            cd ~
+            if [ ! -d "my-backend" ]; then
+              git clone https://github.com/nguyentanquixb/BE-Product.git my-backend
+            fi
+            cd my-backend
             git pull origin main
             docker-compose down || true
             docker-compose build --no-cache
