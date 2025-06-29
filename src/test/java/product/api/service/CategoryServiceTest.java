@@ -25,7 +25,7 @@ public class CategoryServiceTest {
     private CategoryService categoryService;
 
     @Test
-    public void findCategory_SuccessTest() {
+    void findCategory_SuccessTest() {
         Category category = new Category();
         category.setId(1L);
         category.setName("Test Category");
