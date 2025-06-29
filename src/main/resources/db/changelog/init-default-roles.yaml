@@ -124,7 +124,7 @@ databaseChangeLog:
               - column: { name: email, value: "admin@gmail.com" }
               - column:
                   name: password
-                  value: "$2a$10$xUPvW0f9D5nCeZHY0uYkZOKZeq2T68tYYElxn9zYkZUDUjrmJyd9e" # password: admin123
+                  value: "$2a$10$Pra41pto0QO5.q2T4K/eKOEsxfddgzSTMKYbaFxWylxQNoWMCCnwu" # password: 123456
         - sql:
             comment: "Assign ADMIN role to the inserted user"
             sql: |
