@@ -31,7 +31,7 @@ jobs:
               git clone https://github.com/nguyentanquixb/BE-Product.git my-backend
             fi
             cd my-backend
-            git pull origin main
+            git pull origin master
             mvn clean install
             docker-compose down || true
             docker-compose build --no-cache
