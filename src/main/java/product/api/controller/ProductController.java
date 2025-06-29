@@ -253,8 +253,6 @@ public class ProductController {
                 "totalPages", productPage.getTotalPages(),
                 "currentPage", productPage.getNumber()
         ));
-
-
     }
 
     @PostMapping("/batch-create")
