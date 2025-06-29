@@ -24,7 +24,7 @@ public class InventoryServiceTest {
     private InventoryService inventoryService;
 
     @Test
-    public void getProductsByWarehouse_ActiveStatusTest() {
+    void getProductsByWarehouse_ActiveStatusTest() {
 
         Category category = new Category();
         category.setId(1L);
