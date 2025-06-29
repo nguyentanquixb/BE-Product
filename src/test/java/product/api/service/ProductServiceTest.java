@@ -81,6 +81,9 @@ public class ProductServiceTest {
         productRequest.setId(1L);
         productRequest.setName("Test Product");
         productRequest.setProductCode("TEST1");
+        productRequest.setCategoryId(1L);
+        productRequest.setWarehouseId(1L);
+        productRequest.setSupplierId(1L);
 
         Product product = new Product();
         product.setId(1L);

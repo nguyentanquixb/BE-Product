@@ -10,9 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import product.api.entity.Product;
-import product.api.entity.ProductStatusEnum;
-import product.api.entity.Warehouse;
+import product.api.entity.*;
 import product.api.repository.ProductRepository;
 import product.api.response.ProductResponse;
 
@@ -28,10 +26,18 @@ public class InventoryServiceTest {
     @Test
     public void getProductsByWarehouse_ActiveStatusTest() {
 
+        Category category = new Category();
+        category.setId(1L);
+
+        Supplier supplier = new Supplier();
+        supplier.setId(1L);
+
         Product product = new Product();
         product.setId(1L);
         product.setName("Test Product");
         product.setStatus(ProductStatusEnum.ACTIVE);
+        product.setCategory(category);
+        product.setSupplier(supplier);
 
         Warehouse warehouse = new Warehouse();
         warehouse.setName("Test Warehouse");
@@ -51,9 +57,17 @@ public class InventoryServiceTest {
     @Test
     public void getProductsByWarehouse_AllStatusTest() {
 
+        Category category = new Category();
+        category.setId(1L);
+
+        Supplier supplier = new Supplier();
+        supplier.setId(1L);
+
         Product product = new Product();
         product.setName("Test Product");
         product.setStatus(ProductStatusEnum.INACTIVE);
+        product.setCategory(category);
+        product.setSupplier(supplier);
 
         Warehouse warehouse = new Warehouse();
         warehouse.setName("Test Warehouse");
@@ -74,9 +88,19 @@ public class InventoryServiceTest {
     @Test
     public void getLowStockProductsTest() {
 
+        Category category = new Category();
+        category.setId(1L);
+        category.setName("category1");
+
+        Supplier supplier = new Supplier();
+        supplier.setId(1L);
+        supplier.setName("supplier1");
+
         Product product = new Product();
         product.setName("Low Stock Product");
         product.setStatus(ProductStatusEnum.ACTIVE);
+        product.setCategory(category);
+        product.setSupplier(supplier);
 
         Warehouse warehouse = new Warehouse();
         warehouse.setName("Test Warehouse");
