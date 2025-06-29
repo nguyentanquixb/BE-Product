@@ -17,7 +17,7 @@ public class SwaggerConfig {
     public OpenAPI productOpenAPI() {
         return new OpenAPI()
                 .info(new Info().title("Product API").version("1.0.0"))
-                .addServersItem(new Server().url("http://localhost:8081"))
+                .addServersItem(new Server().url("http://13.213.39.149:8081"))
                 .components(new Components().addSecuritySchemes("BearerAuth",
                         new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)
