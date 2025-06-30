@@ -69,7 +69,30 @@ public class ProductService {
         return productRepository.existsProductByProductCode(productCode);
     }
 
-    public Product updateProduct(ProductRequest request) {
+    public Product updateProduct(ProductRequest request, Long id) {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Product Not Found"));
+
+        existingProduct.setName(request.getName());
+        existingProduct.setProductCode(request.getProductCode());
+        existingProduct.setDescription(request.getDescription());
+        existingProduct.setPrice(request.getPrice());
+        existingProduct.setQuantity(request.getQuantity());
+        existingProduct.setMinStock(request.getMinStock());
+        existingProduct.setUnit(request.getUnit());
+        existingProduct.setBarcode(request.getBarcode());
+        existingProduct.setStatus(request.getStatus());
+        existingProduct.setUpdatedAt(LocalDateTime.now());
+
+        existingProduct.setCategory(categoryService.findCategory(request.getCategoryId()));
+        existingProduct.setWarehouse(warehouseService.findWarehouse(request.getWarehouseId()));
+        existingProduct.setSupplier(supplierService.findSupplier(request.getSupplierId()));
+
+        return productRepository.save(existingProduct);
+
+    }
+
+    public Product updateProductList(ProductRequest request) {
         Product existingProduct = productRepository.findById(request.getId())
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND,"Product Not Found"));
 

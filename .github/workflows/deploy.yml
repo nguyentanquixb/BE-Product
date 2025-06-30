@@ -1,39 +1,39 @@
-name: Deploy to EC2
-
-on:
-  push:
-    branches:
-      - master
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Debug environment
-        run: |
-          echo "EC2_HOST: ${{ secrets.EC2_HOST }}"
-          echo "EC2_PORT: ${{ secrets.EC2_PORT }}"
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
-      - name: SSH and deploy to EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_HOST }} << 'EOF'
-            cd ~
-            if [ ! -d "my-backend" ]; then
-              git clone https://github.com/nguyentanquixb/BE-Product.git my-backend
-            fi
-            cd my-backend
-            git pull origin master
-            mvn clean install
-            docker-compose down || true
-            docker-compose build --no-cache
-            docker-compose up -d
-          EOF
+#name: Deploy to EC2
+#
+#on:
+#  push:
+#    branches:
+#      - master
+#
+#jobs:
+#  deploy:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Debug environment
+#        run: |
+#          echo "EC2_HOST: ${{ secrets.EC2_HOST }}"
+#          echo "EC2_PORT: ${{ secrets.EC2_PORT }}"
+#
+#      - name: Setup SSH
+#        uses: webfactory/ssh-agent@v0.7.0
+#        with:
+#          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+#
+#      - name: SSH and deploy to EC2
+#        run: |
+#          ssh -o StrictHostKeyChecking=no -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_HOST }} << 'EOF'
+#            cd ~
+#            if [ ! -d "my-backend" ]; then
+#              git clone https://github.com/nguyentanquixb/BE-Product.git my-backend
+#            fi
+#            cd my-backend
+#            git pull origin master
+#            mvn clean install
+#            docker-compose down || true
+#            docker-compose build --no-cache
+#            docker-compose up -d
+#          EOF

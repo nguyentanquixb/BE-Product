@@ -3,7 +3,6 @@ package product.api.response;
 import lombok.*;
 import product.api.entity.Permission;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter

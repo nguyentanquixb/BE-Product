@@ -15,10 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.*;
 
 
 @Component
@@ -41,15 +38,11 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
-    public JwtTokenResponse generateToken(UserDetails userDetails) {
+    public JwtTokenResponse generateToken(UserDetails userDetails, User user) {
         long expirationMs = 86400000;
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationMs);
 
-        User user = userRepository.findByEmail(userDetails.getUsername());
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
 
         List<String> allPermissions = new java.util.ArrayList<>(user.getRoles().stream()
                 .flatMap(role -> role.getPermissions().stream())

@@ -71,7 +71,7 @@ public class ProductController {
 
         Product savedProduct = productService.createProduct(request);
         ProductResponse productResponse = ProductResponse.convertProduct(savedProduct);
-        return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
+        return ResponseUtil.buildResponse(HttpStatus.CREATED, productResponse);
     }
 
     @PostMapping("/create-excel")
@@ -141,7 +141,7 @@ public class ProductController {
             return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, errors);
         }
 
-        Product updatedProduct = productService.updateProduct(request);
+        Product updatedProduct = productService.updateProduct(request, id);
         ProductResponse productResponse = ProductResponse.convertProduct(updatedProduct);
 
         return ResponseUtil.buildResponse(HttpStatus.OK, productResponse);
@@ -151,7 +151,7 @@ public class ProductController {
     @DeleteMapping("delete/{id}")
     @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<Response> deleteProduct(@PathVariable Long id) {
-        Optional<Product> product = productService.getProductById(id);
+        Product product = productService.findById(id);
         productService.deleteProduct(id);
         return ResponseUtil.buildResponse(HttpStatus.OK, product);
     }
@@ -218,7 +218,7 @@ public class ProductController {
                 return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, errors);
             }
 
-            Product updatedProduct = productService.updateProduct(request);
+            Product updatedProduct = productService.updateProductList(request);
             updatedProducts.add(ProductResponse.convertProduct(updatedProduct));
 
             processedProductCodes.add(request.getProductCode());

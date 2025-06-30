@@ -32,7 +32,7 @@ public class CustomUserDetailsServiceTest {
 
         when(userRepository.findByEmail(anyString())).thenReturn(user);
 
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername("test@example.com");
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername("test@gmail.com");
 
         assertEquals("test@gmail.com", userDetails.getUsername());
         assertEquals("123456", userDetails.getPassword());

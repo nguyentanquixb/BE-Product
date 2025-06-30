@@ -7,8 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import product.api.dto.ProductRequest;
 import product.api.entity.Category;
 import product.api.entity.Product;
-import product.api.entity.ProductStatusEnum;
 import product.api.entity.Supplier;
 import product.api.entity.Warehouse;
 import product.api.exception.NotFoundException;
@@ -51,8 +49,8 @@ public class ProductServiceTest {
         product.setName("Test Product");
         product.setProductCode("TEST001");
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
-        Optional<Product> foundProduct = productService.getProductById(1L);
-        assertEquals("Test Product", foundProduct.get().getName());
+        Product foundProduct = productService.findById(1L);
+        assertEquals("Test Product", foundProduct.getName());
     }
 
     @Test

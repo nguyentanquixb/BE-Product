@@ -6,4 +6,5 @@ import product.api.entity.Supplier;
 
 @Repository
 public interface SupplierRepository extends JpaRepository<Supplier, Long> {
+
 }

@@ -6,9 +6,6 @@ import product.api.entity.Category;
 import product.api.exception.NotFoundException;
 import product.api.repository.CategoryRepository;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 public class CategoryService {
 
