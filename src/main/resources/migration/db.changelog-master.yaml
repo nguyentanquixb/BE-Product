@@ -37,3 +37,5 @@ databaseChangeLog:
       file: db/changelog/init-default-roles.yaml
   - include:
       file: db/changelog/seed-data.yaml
+  - include:
+      file: db/changelog/audit-log.yaml

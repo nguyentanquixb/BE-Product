@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: audit-log-1
+      author: BE PRODUCT
+      changes:
+        - createTable:
+            tableName: audit_log
+            schemaName: public
+            columns:
+              - column:
+                  name: log_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: action
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: table_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: record_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: changes
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: timestamp
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
